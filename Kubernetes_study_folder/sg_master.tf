@@ -54,6 +54,20 @@ resource "aws_security_group" "sg_master" {
         cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
     }
 
+    ingress {
+        from_port = var.flannel_udp_port
+        to_port = var.flannel_udp_port
+        protocol = "tcp"
+        cidr_blocks = ["10.1.0.0/24"]
+    }
+
+    ingress {
+        from_port = var.vxlan_udp_port
+        to_port = var.vxlan_udp_port
+        protocol = "tcp"
+        cidr_blocks = ["10.1.0.0/24"]
+    }
+
     egress {
         from_port = 0
         to_port = 0
@@ -102,6 +116,18 @@ variable "ssh_port" {
     description = "ssh access port"
     type = number
     default = 22
+}
+
+variable "flannel_udp_port" {
+    description = "flannel port"
+    type = number
+    default = 8285
+}
+
+variable "vxlan_udp_port" {
+    decription = "vxlan port"
+    type = number
+    default = 8472
 }
 
 # 내 ip를 일일이 안적고 쓸 수 있는 멋진 방법이 있어서 첨부

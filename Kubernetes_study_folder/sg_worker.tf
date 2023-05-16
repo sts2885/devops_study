@@ -26,6 +26,20 @@ resource "aws_security_group" "sg_worker" {
         cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
     }
 
+    ingress {
+        from_port = var.flannel_udp_port
+        to_port = var.flannel_udp_port
+        protocol = "tcp"
+        cidr_blocks = ["10.1.0.0/24"]
+    }
+
+    ingress {
+        from_port = var.vxlan_udp_port
+        to_port = var.vxlan_udp_port
+        protocol = "tcp"
+        cidr_blocks = ["10.1.0.0/24"]
+    }
+
     egress {
         from_port = 0
         to_port = 0
