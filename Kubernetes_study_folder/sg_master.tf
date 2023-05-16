@@ -104,7 +104,6 @@ variable "ssh_port" {
     default = 22
 }
 
-
 # 내 ip를 일일이 안적고 쓸 수 있는 멋진 방법이 있어서 첨부
 # https://stackoverflow.com/questions/46763287/i-want-to-identify-the-public-ip-of-the-terraform-execution-environment-and-add
 

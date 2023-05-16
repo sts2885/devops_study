@@ -7,6 +7,17 @@
 # .gitignore에 넣었다.
 
 /*
+
+
+#노트북에서는 이거 있어야 돌아가더라 local 에 common tags가 없다고
+locals {
+  date        = "2023.05.16"
+  common_tags = {
+    group   = "sts"
+    created = local.date
+  }
+}
+
 provider "aws" {
     region = "us-east-1"
     profile = "iam_user_name"
