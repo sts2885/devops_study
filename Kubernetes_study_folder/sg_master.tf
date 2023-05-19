@@ -125,7 +125,7 @@ variable "flannel_udp_port" {
 }
 
 variable "vxlan_udp_port" {
-    decription = "vxlan port"
+    description = "vxlan port"
     type = number
     default = 8472
 }
