@@ -10,7 +10,7 @@ swapoff -a
 #kubernetes version이랑 node 체크 적을것
 
 # install docker
-# terraform으로 몇번 자동생성 하니까 docker 설치를 실패하는 케이스가
+# terraform으로 몇번 자동생성 하니까 docker 설치를 실패하는 케이스가있다(서버에서 설치파일이 안받아짐)
 #apt update
 apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 
@@ -28,6 +28,46 @@ apt-get update
 
 
 
+
+#install kubernetes
+apt-get install -y apt-transport-https 
+apt-get install -y ca-certificates 
+apt-get install -y curl
+
+
+#curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+#old key : deprecated warning이 나오는데 되긴 함. 나중엔 얘네가 안정되면 새 주소로 바꿔야될거임
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+
+#curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://dl.k8s.io/apt/doc/apt-key.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+#chmod 0644 /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+chmod 0644 /usr/share/keyrings/kubernetes-archive-keyring.gpg
+
+
+
+apt-get update
+apt-get install -y kubelet=1.21.7-00 kubeadm=1.21.7-00 kubectl=1.21.7-00
+#apt-get install -y kubelet kubeadm kubectl
+apt-mark hold kubelet kubeadm kubectl
+
+kubeadm version
+
+kubelet --version
+
+kubectl version --client
+
+
+
+
+#network setting
 sudo modprobe br_netfilter
 
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
@@ -40,19 +80,6 @@ net.bridge.bridge-nf-call-iptables = 1
 EOF
 sudo sysctl --system
 
-sudo apt-get update
-sudo apt-get install -y apt-transport-https ca-certificates curl &&
-sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg &&
-echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list &&
-sudo apt-get update
-sudo apt-get install -y kubelet=1.21.7-00 kubeadm=1.21.7-00 kubectl=1.21.7-00 &&
-sudo apt-mark hold kubelet kubeadm kubectl
 
-kubeadm version
 
-kubelet --version
-
-kubectl version --client
-
-echo "end"
-
+echo "kubernetes_ready"
