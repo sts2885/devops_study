@@ -91,9 +91,21 @@ kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$pri
 | tee /var/log/kubeadm_init_print.txt
 tail -n 2 /var/log/kubeadm_init_print.txt > /var/log/kubeadm_join.txt
 
+
+#사이트 등에서는 이렇게 나와있는데
+#유저 ubuntu 에서는 $HOME이 /home/ubuntu 이고 여기 에는 .kube/config가 무슨 폴더 링크임
+#근데 여기서 추가한건 $HOME /root 근데 이 밑에는 .kube가 없음
+#근데 또 /rrot라고 명시하니까 동작 안함
+
 mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
+
+echo $HOME > /var/log/home.txt
+
+mkdir -p /root/.kube
+cp -i /etc/kubernetes/admin.conf /root/.kube/config
+chown $(id -u):$(id -g) /root/.kube/config
 
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
