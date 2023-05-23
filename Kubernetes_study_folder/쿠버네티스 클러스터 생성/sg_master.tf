@@ -68,6 +68,13 @@ resource "aws_security_group" "sg_master" {
         cidr_blocks = ["10.1.0.0/24"]
     }
 
+    ingress {
+        from_port = var.server_port
+        to_port = var.server_port
+        protocol = "tcp"
+        cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
+    }
+
     egress {
         from_port = 0
         to_port = 0
@@ -129,6 +136,13 @@ variable "vxlan_udp_port" {
     type = number
     default = 8472
 }
+
+variable "server_port" {
+    description = "server port"
+    type = number
+    default = 8080
+}
+
 
 # 내 ip를 일일이 안적고 쓸 수 있는 멋진 방법이 있어서 첨부
 # https://stackoverflow.com/questions/46763287/i-want-to-identify-the-public-ip-of-the-terraform-execution-environment-and-add
