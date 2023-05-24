@@ -1,25 +1,28 @@
 
 
 /*
-resource "aws_instance" "kube_spot" {
+*/
+#온디맨드
+resource "aws_instance" "kube_master" {
     ami= "ami-007855ac798b5175e"
-    instance_type = "t2.micro"
+    instance_type = "t2.medium"
     key_name = "DevOps_Study"
 
     subnet_id = aws_subnet.public_subnet.id
 
     #user_data = see you next time
-    security_groups = [aws_security_group.sg_master.id,
-                        aws_security_group.sg_worker.id]
+    security_groups = [aws_security_group.sg_master.id]
 
     associate_public_ip_address = true
 
+    user_data = data.template_file.kube_master_user_data.rendered
+
     tags = {
-        Name = "kube_spot"
+        Name = "kube_master"
     }
 }
-*/
 
+/*
 #master 고가용성 설계 하고 싶으면
 resource "aws_spot_instance_request" "kube_master" {
     
@@ -29,7 +32,7 @@ resource "aws_spot_instance_request" "kube_master" {
 
     ami= "ami-007855ac798b5175e"
     #2core 4GB, 1core 2GB
-    instance_type = "t2.medium"#"t2.small"
+    instance_type = "t3.medium"#"t2.small"
     key_name = "DevOps_Study"
 
     subnet_id = aws_subnet.public_subnet.id
@@ -59,7 +62,7 @@ resource "aws_ec2_tag" "master_tag" {
     value = "kube_master"
 }
 
-
+*/
 data "template_file" "kube_master_user_data" {
     template = file("kube_master_user_data.sh")
 }
