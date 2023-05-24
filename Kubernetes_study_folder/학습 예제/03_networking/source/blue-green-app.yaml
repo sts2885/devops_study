@@ -10,7 +10,7 @@ metadata:
 spec:
   containers:
   - name: blue-app
-    images: yoonjeong/blue-app:1.0
+    image: yoonjeong/blue-app:1.0
     ports:
     - containerPort: 8080
     env:
@@ -33,7 +33,7 @@ spec:
 
 
   - name: green-app
-    images: yoonjeong/green-app:1.0
+    image: yoonjeong/green-app:1.0
     ports:
     - containerPort: 8081
     env:
