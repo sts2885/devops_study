@@ -23,7 +23,8 @@ resource "aws_security_group" "sg_worker" {
         from_port = var.ssh_port
         to_port = var.ssh_port
         protocol = "tcp"
-        cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
+        cidr_blocks = ["0.0.0.0/0"]
+        #cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
     }
 
     ingress {

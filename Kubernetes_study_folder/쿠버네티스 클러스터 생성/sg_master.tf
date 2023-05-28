@@ -51,7 +51,8 @@ resource "aws_security_group" "sg_master" {
         to_port = var.ssh_port
         protocol = "tcp"
         #https://stackoverflow.com/questions/46763287/i-want-to-identify-the-public-ip-of-the-terraform-execution-environment-and-add
-        cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
+        #cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 
     ingress {
