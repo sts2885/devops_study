@@ -1,6 +1,7 @@
 
 
 /*
+*/
 #온디맨드
 resource "aws_instance" "kube_master" {
     ami= "ami-007855ac798b5175e"
@@ -21,12 +22,10 @@ resource "aws_instance" "kube_master" {
     }
 }
 
-*/
 
 
 
 /*
-*/
 #master 고가용성 설계 하고 싶으면
 resource "aws_spot_instance_request" "kube_master" {
     
@@ -65,6 +64,9 @@ resource "aws_ec2_tag" "master_tag" {
     key = "Name"
     value = "kube_master"
 }
+
+*/
+
 
 data "template_file" "kube_master_user_data" {
     template = file("kube_master_user_data.sh")
