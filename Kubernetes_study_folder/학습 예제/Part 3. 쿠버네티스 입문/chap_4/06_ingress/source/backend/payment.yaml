@@ -7,6 +7,23 @@
 # Service 포트: 80
 # 컨테이너 포트: 8080
 
+apiVersion: v1
+kind: Service
+metadata:
+  name: order
+  namespace: snackbar
+  labels:
+    service: order
+    project: snackbar
+spec:
+  type: NodePort
+  selector:
+    service: order
+    project: snackbar
+  ports:
+  - port: 80
+    targetPort: 8080
+
 --- 
 
 apiVersion: apps/v1
