@@ -1,0 +1,36 @@
+# Deployment API 버전: apps/v1
+# Deployment 이름: my-app
+# Deployment replicas: 3
+# Deployment 레이블: app=my-app
+# Deployment Pod Selector: app=my-app
+# Deployment 배포전략: Recreate
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  labels:
+    app: my-app
+spec:
+  replicas: 3
+  selector: 
+    matchLabels:
+      app: my-app
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app
+        image: yoonjeong/my-app:2.0
+        ports:
+        - containerPort: 8080
+# 컨테이너 이름/포트: my-app(8080)
+# 컨테이너 레이블: app=my-app, project=fastcampus, env=production, version: v1 
+# 도커 이미지: yoonjeong/my-app:1.0
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "50m"

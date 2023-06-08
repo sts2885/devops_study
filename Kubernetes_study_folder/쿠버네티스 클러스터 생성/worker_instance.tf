@@ -11,6 +11,9 @@ resource "aws_launch_configuration" "kube_worker_lc" {
     image_id = "ami-007855ac798b5175e"
 
     instance_type = "t3.medium"
+    
+    #여기서는 vpc secutiry group 안쓰네... 그래도 destroy안됨
+    #vpc_security_group_ids = [aws_security_group.sg_worker.id]
     security_groups = [aws_security_group.sg_worker.id]
     key_name = "DevOps_Study"
 
@@ -32,7 +35,7 @@ resource "aws_launch_configuration" "kube_worker_lc" {
 
 
 data "template_file" "kube_worker_user_data" {
-    template = file("kube_worker_user_data.sh")
+    template = file("[docker] kube_worker_user_data.sh")
 }
 
 resource "aws_autoscaling_group" "kube_worker_asg" {

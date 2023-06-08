@@ -10,8 +10,11 @@ resource "aws_instance" "kube_master" {
 
     subnet_id = aws_subnet.public_subnet.id
 
-    #user_data = see you next time
-    security_groups = [aws_security_group.sg_master.id]
+    
+    #security_groups = [aws_security_group.sg_master.id]
+    #이걸 써야 apply 시에 ec2 destroy가 안된다고 함
+    #https://stackoverflow.com/questions/69501297/terrafrom-aws-ec2-with-no-change-in-the-code-trying-to-destroy-and-create-insta
+    vpc_security_group_ids = [aws_security_group.sg_master.id]
 
     associate_public_ip_address = true
 
@@ -21,6 +24,9 @@ resource "aws_instance" "kube_master" {
         Name = "kube_master"
     }
 }
+
+
+
 
 /*
 #master 고가용성 설계 하고 싶으면
@@ -63,6 +69,8 @@ resource "aws_ec2_tag" "master_tag" {
 }
 
 */
+
+
 data "template_file" "kube_master_user_data" {
-    template = file("kube_master_user_data.sh")
+    template = file("[docker] kube_master_user_data.sh")
 }
