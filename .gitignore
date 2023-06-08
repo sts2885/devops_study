@@ -3,3 +3,9 @@
 *.tfstate.backup
 .terraform.lock.hcl
 provider.tf
+*.pem
+*.ppk
+.aws
+config
+credentials
+.ipynb_checkpoints

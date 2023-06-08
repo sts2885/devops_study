@@ -1,0 +1,55 @@
+# Pod API 버전: v1
+# Pod 이름: hello-app
+# Pod 네임스페이스: default <- 클러스터를 논리적으로 구분하기 위함
+# 컨테이너 이름/포트: hello-app(8080)
+# 도커 이미지: yoonjeong/hello-app:1.0
+# 환경변수:
+# -- POD_NAME(metadata.name), POD_IP(status.podIP)
+# -- NAMESPACE_NAME(metadata.namespace)
+# -- NODE_NAME(spec.nodeName), NODE_IP(status.hostIP)
+# -- STUDENT_NAME(본인이름), GREETING(STUDENT_NAME을 참조한 인삿말)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello-app
+  namespace: default
+spec:
+  containers:
+  - name: hello-app
+    image: yoonjeong/hello-app:1.0
+    ports:
+    - containerPort: 8080
+    env:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+    - name : NAMESPACE_NAME
+      valueFrom :
+        fieldRef:
+          fieldPath: metadata.namespace
+    #node name도 pod이 배포된 이후에 알게되는 거라네 (container id같은 느낌인건가?)
+    #왜냐면 컨테이너 네임은 도커에선 사용자가 직접 정해줬잖아(실행전에 알수 있던건데)
+    - name: NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+    - name: NODE_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+    - name: STUDENT_NAME
+      value: 손태선
+    - name: GREETING
+      value: 안녕하십니까 휀님덜 $(STUDENT_NAME), 인사 오지게 박겠습니다.
+
+    #아.. 이렇게 리소스를 직접 제어 해주는 구나.
+    #그럼 프로비저닝을 해서 리소스 사용량을 먼저 계산해줘야 겠네?
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "100m"
