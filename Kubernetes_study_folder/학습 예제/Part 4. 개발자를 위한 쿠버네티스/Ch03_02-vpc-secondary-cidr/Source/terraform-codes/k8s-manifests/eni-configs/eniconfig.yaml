@@ -1,0 +1,24 @@
+#https://cj-hewett.medium.com/using-templates-in-terraform-to-generate-kubernetes-yaml-5f60cfa0109
+#https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file
+#https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file
+#https://stackoverflow.com/questions/63845957/terraform-saving-output-to-file
+#https://github.com/hashicorp/terraform/issues/8090
+#https://www.bitslovers.com/terraform-template-file/
+---
+apiVersion: crd.k8s.amazonaws.com/v1alpha1
+kind: ENIConfig
+metadata:
+ name: us-east-1a
+spec:
+  securityGroups: 
+    - sg-0be5577546769aafc
+  subnet: subnet-0566601e2f715d89a
+---
+apiVersion: crd.k8s.amazonaws.com/v1alpha1
+kind: ENIConfig
+metadata:
+ name: us-east-1c
+spec:
+  securityGroups: 
+    - sg-0be5577546769aafc
+  subnet: subnet-0d3563a6398c7f7d4
