@@ -33,13 +33,13 @@ resource "aws_subnet" "public_subnet_a" {
 
     tags = {
         Name = "public_subnet_a"
-        "kubernetes.io/cluster/test-eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
     }
 
     #이거 있어야 하위 항목에 전부 다 태그달린다는데 정확히 어떤의민지 체감이 잘 안됨
     tags_all = {
         Name = "public_subnet_a"
-        "kubernetes.io/cluster/test-eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
     }
 }
 
@@ -57,7 +57,7 @@ resource "aws_subnet" "public_subnet_c" {
 
     tags_all = {
         Name = "public_subnet_c"
-        "kubernetes.io/cluster/test-eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
     }
 }
 
@@ -75,12 +75,12 @@ resource "aws_subnet" "public_subnet_eks_pods_a" {
 
     tags = {
         Name = "public_subnet_eks_pods_a"
-        "kubernetes.io/cluster/test-eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
     }
 
     tags_all = {
         Name = "public_subnet_eks_pods_a"
-        "kubernetes.io/cluster/test-eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
     }
 }
 
@@ -101,12 +101,12 @@ resource "aws_subnet" "public_subnet_eks_pods_c" {
 
     tags = {
         Name = "public_subnet_eks_pods_c"
-        "kubernetes.io/cluster/test-eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
     }
 
     tags_all = {
         Name = "public_subnet_eks_pods_c"
-        "kubernetes.io/cluster/test-eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
     }
 }
 

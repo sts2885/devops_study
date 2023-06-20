@@ -4,7 +4,7 @@ variable "aws_region" {
 }
 
 variable "cluster_name" {
-    default = "test-eks-cluster"
+    default = "eks-cluster"
     type = string
 }
 
