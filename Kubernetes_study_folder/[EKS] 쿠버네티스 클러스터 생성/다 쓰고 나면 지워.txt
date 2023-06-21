@@ -1,0 +1,127 @@
+
+2. driver 2종 설치
+=> 퍼블릭 존 클러스터에서 만들자+
+
+
+
+
+
+1. 쿠버플로우설치
+
+3. aiops 기술스택
+
+4. 케글 eda
+
+
+
+
+
+
+
+
+
+오늘 드라이버 다 정리해버리고
+
+
+
+user data로 자동 연결
+끝?
+
+ㅇㅋ
+
+=> terraform으로 베스천 잘 켜지나, iam롤 만들어지나 보고
+=> 들어가서 코드 복붙
+
+
+
+#보낼 폴더 목록 정리
+#- .aws
+#- k8s-manifests
+
+#aws cli 설치
+sudo apt update
+sudo apt install -y awscli 
+
+#eks 설정 파일 연결(aws cli 설정이 있어야 함 .aws)
+aws eks --region us-east-1 update-kubeconfig --name eks-cluster
+
+#kubectl client 설치
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.15.7/bin/linux/amd64/kubectl
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+export PATH=$PATH:/usr/local/bin/
+kubectl version
+
+
+#node => secondary subnet에 배치시키기
+#node 숫자 변동은 설치 다 하고 마지막에 terraform 변동만 하면 됨
+#보낼파일 ./k8s-manifests 폴더 전체
+kubectl create -f ./k8s-manifests/eni-configs/.
+kubectl set env daemonset aws-node -n kube-system AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true
+kubectl set env daemonset aws-node -n kube-system ENI_CONFIG_LABEL_DEF=failure-domain.beta.kubernetes.io/zone
+
+
+
+#이거 테라폼 파일 보내기 알고 나서 갑자기 급물살 탄다.
+
+##alb controller 설치
+#eksctl
+curl --location \
+"https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+
+sudo mv /tmp/eksctl /usr/local/bin
+
+eksctl version
+
+eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=eks-cluster --approve
+
+#iam 들어가서 arn 찾아 놔야 함
+eksctl create iamserviceaccount \
+--cluster=eks-cluster \
+--namespace=kube-system \
+--name=aws-load-balancer-controller \
+--attach-policy-arn=arn:aws:iam::<여기 id>:policy/AWSLoadBalancerControllerIAMPolicy \
+--override-existing-serviceaccounts \
+--approve
+
+#파일 2개 필요 => s3에 넣어서 wget으로 받아.
+#cert-manager.yaml
+kubectl create ‒f cert-manager.yaml
+
+#alb-controller.yaml
+kubectl create -f alb-controller.yaml
+=> 변경해줘야 되는 내용 있어
+=> 강의 듣고 확인해
+=> 봤는데 내가 처음 정한 이름 그대로 쓰면 문제 없는 듯
+
+kubectl get deploy -n kube-system aws-load-balancer-controller
+
+
+
+복붙 해서 넣어버리고
+
+=> 됐으면 user data로
+
+
+
+
+
+
+
+
+돌아가나 테스트 하려면
+
+결국 이 사람이 만든거 돌려봐야 돼
+
+
+
+
+구조를 결국
+
+리눅스에서
+쉘스크립트 안에서
+=> terraform => ssh로 쉘스크립트 원격 실행 => terraform
+반복
+
+
+
