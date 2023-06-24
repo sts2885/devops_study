@@ -20,7 +20,6 @@ locals {
 
 provider "aws" {
     region = "us-east-1"
-    profile = "iam_user_name"
 
     access_key = "your_access_key"
     secret_key = "your_secret_key"

@@ -13,7 +13,7 @@ resource "aws_eks_cluster" "eks-cluster" {
     name = var.cluster_name
     #리소스 주소 arn
     role_arn = aws_iam_role.iam-role-eks-cluster.arn
-    version = "1.27"
+    version = "1.26"
 
     #로그를 뭘 남길것인가?
     #control plane이 black box가 되서 못보니까

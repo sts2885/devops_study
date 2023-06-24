@@ -11,6 +11,7 @@
 #https://www.bitslovers.com/terraform-template-file/
 
 
+
 data "template_file" "eniconfig" {
     template = "${file("${path.module}/k8s-manifests/eni-configs/eniconfig.yaml.tftpl")}"
     vars = {
@@ -25,7 +26,6 @@ resource "local_file" "eniconfig" {
     content = "${data.template_file.eniconfig.rendered}"
     filename = "${path.module}/k8s-manifests/eni-configs/eniconfig.yaml"
 }
-
 
 
 

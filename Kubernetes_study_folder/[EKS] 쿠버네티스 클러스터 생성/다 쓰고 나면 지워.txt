@@ -34,6 +34,8 @@ user data로 자동 연결
 
 
 
+
+
 #보낼 폴더 목록 정리
 #- .aws
 #- k8s-manifests
@@ -46,7 +48,17 @@ sudo apt install -y awscli
 aws eks --region us-east-1 update-kubeconfig --name eks-cluster
 
 #kubectl client 설치
-curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.15.7/bin/linux/amd64/kubectl
+#ㅡㅡ nks kubectl에서 복붙한건데 이거 버전이 지나치게 낮은데?
+#curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.15.7/bin/linux/amd64/kubectl <- 이거 때문에 안된건가?
+#https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/install-kubectl.html
+#여기에서는 제일 높은 버전이 1.26.4네... eks버전은 1.27이면서...
+#curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.26.4/2023-05-11/bin/linux/amd64/kubectl
+#aws에서 시킨대로 해도 안돼는데?
+#역시 구글이 답인가? => 성공했는데 버전이 좀 차이나는데 쓸수는 있다 말 나와서 latest로 하자
+#curl -LO https://dl.k8s.io/release/v1.23.6/bin/linux/amd64/kubectl
+#이거도 안되는데? 그냥 1.23.6쓰자...
+#curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -LO https://dl.k8s.io/release/v1.23.6/bin/linux/amd64/kubectl
 chmod +x kubectl
 sudo mv kubectl /usr/local/bin/
 export PATH=$PATH:/usr/local/bin/
@@ -56,9 +68,9 @@ kubectl version
 #node => secondary subnet에 배치시키기
 #node 숫자 변동은 설치 다 하고 마지막에 terraform 변동만 하면 됨
 #보낼파일 ./k8s-manifests 폴더 전체
-kubectl create -f ./k8s-manifests/eni-configs/.
-kubectl set env daemonset aws-node -n kube-system AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true
-kubectl set env daemonset aws-node -n kube-system ENI_CONFIG_LABEL_DEF=failure-domain.beta.kubernetes.io/zone
+#kubectl create -f ./k8s-manifests/eni-configs/.
+#kubectl set env daemonset aws-node -n kube-system AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true
+#kubectl set env daemonset aws-node -n kube-system ENI_CONFIG_LABEL_DEF=failure-domain.beta.kubernetes.io/zone
 
 
 
@@ -69,32 +81,96 @@ kubectl set env daemonset aws-node -n kube-system ENI_CONFIG_LABEL_DEF=failure-d
 curl --location \
 "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 
+
+
+
 sudo mv /tmp/eksctl /usr/local/bin
 
 eksctl version
 
 eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=eks-cluster --approve
 
+
+
+#aws lb controller 설치
+#https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/aws-load-balancer-controller.html
+
+curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.7/docs/install/iam_policy.json
+aws iam create-policy \
+    --policy-name AWSLoadBalancerControllerIAMPolicy \
+    --policy-document file://iam_policy.json
+
+
+#기존에 eksctl get iamserviceaccount를 통해 기존버전이 있으면 지우고 생성
+eksctl delete iamserviceaccount \
+--cluster=eks-cluster \
+--namespace=kube-system \
+--name=aws-load-balancer-controller
+
 #iam 들어가서 arn 찾아 놔야 함
 eksctl create iamserviceaccount \
 --cluster=eks-cluster \
 --namespace=kube-system \
 --name=aws-load-balancer-controller \
---attach-policy-arn=arn:aws:iam::<여기 id>:policy/AWSLoadBalancerControllerIAMPolicy \
+--role-name AmazonEKSLoadBalancerControllerRole \
+--attach-policy-arn=arn:aws:iam::<iamid>:policy/AWSLoadBalancerControllerIAMPolicy \
 --override-existing-serviceaccounts \
 --approve
 
-#파일 2개 필요 => s3에 넣어서 wget으로 받아.
+
+curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.7/docs/install/iam_policy_v1_to_v2_additional.json
+
+aws iam create-policy \
+  --policy-name AWSLoadBalancerControllerAdditionalIAMPolicy \
+  --policy-document file://iam_policy_v1_to_v2_additional.json
+
+aws iam attach-role-policy \
+  --role-name AmazonEKSLoadBalancerControllerRole \
+  --policy-arn arn:aws:iam::<iamid>:policy/AWSLoadBalancerControllerAdditionalIAMPolicy
+
+
+#https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/aws-load-balancer-controller.html
+#certmanager, albcontroller.yaml(v2_4_7_full.yaml) 여기 대로 써라
+kubectl apply \
+    --validate=false \
+    -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+
+curl -Lo v2_4_7_full.yaml https://github.com/kubernetes-sigs/aws-load-balancer-controller/releases/download/v2.4.7/v2_4_7_full.yaml
+
+sed -i.bak -e '561,569d' ./v2_4_7_full.yaml
+
+sed -i.bak -e 's|your-cluster-name|my-cluster|' ./v2_4_7_full.yaml
+kubectl apply -f v2_4_7_full.yaml
+curl -Lo v2_4_7_ingclass.yaml https://github.com/kubernetes-sigs/aws-load-balancer-controller/releases/download/v2.4.7/v2_4_7_ingclass.yaml
+kubectl apply -f v2_4_7_ingclass.yaml
+
+kubectl get deployment -n kube-system aws-load-balancer-controller
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###ㅡㅡ 강사가 설명한게 너무 옛날 버전이라 지금은 파일이 다름
+
+
 #cert-manager.yaml
-kubectl create ‒f cert-manager.yaml
+#kubectl apply -f ./k8s-manifests/cert-manager.yaml
 
 #alb-controller.yaml
-kubectl create -f alb-controller.yaml
-=> 변경해줘야 되는 내용 있어
-=> 강의 듣고 확인해
-=> 봤는데 내가 처음 정한 이름 그대로 쓰면 문제 없는 듯
+kubectl apply -f ./k8s-manifests/alb-controller.yaml
 
 kubectl get deploy -n kube-system aws-load-balancer-controller
+
+kubectl apply => 있으면 변경점만, create=> 기존에 있으면 오류 발생, replace => 있어도 대체
 
 
 

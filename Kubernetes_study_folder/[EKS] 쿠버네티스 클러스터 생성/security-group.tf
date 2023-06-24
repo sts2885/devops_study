@@ -41,6 +41,7 @@ resource "aws_security_group_rule" "eks-cluster-sg-egress" {
     cidr_blocks = ["0.0.0.0/0"]
 }
 
+
 #EKS PODs sg
 resource "aws_security_group" "eks-pods-sg"{
     name = "eks-pods-sg"
