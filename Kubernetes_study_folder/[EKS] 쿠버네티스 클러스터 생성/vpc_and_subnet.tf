@@ -90,8 +90,10 @@ resource "aws_subnet" "public_subnet_c" {
 
 resource "aws_subnet" "public_subnet_eks_pods_a" {
     depends_on = [
-        aws_vpc.kube_vpc
+        aws_vpc.kube_vpc,
+        aws_vpc_ipv4_cidr_block_association.secondary_cidr
     ]
+
     vpc_id = aws_vpc.kube_vpc.id
     cidr_block = "100.64.0.0/19"
     
@@ -122,7 +124,8 @@ resource "aws_subnet" "public_subnet_eks_pods_a" {
 
 resource "aws_subnet" "public_subnet_eks_pods_c" {
     depends_on = [
-        aws_vpc.kube_vpc
+        aws_vpc.kube_vpc,
+        aws_vpc_ipv4_cidr_block_association.secondary_cidr
     ]
     #강의에서는 vpc id 하드코딩된 값을 그냥 복붙하는데
     #이러면 문제가 뭐냐면 terraform destroy하고 다시 만들면

@@ -37,7 +37,7 @@ output "bastion_ip" {
 */
 
 ######bastion에 필요한 파일을 미리 보내기#####
-
+/*
 resource "null_resource" "aws-configure" {
 
     provisioner "file" {
@@ -52,18 +52,53 @@ resource "null_resource" "aws-configure" {
         }
     }
 }
+*/
 
-resource "null_resource" "k8s-manifests" {
+resource "null_resource" "send_files_and_run_2" {
+
+    depends_on = [
+        aws_eks_node_group.eks-nodegroup_1,
+        aws_eks_node_group.eks-nodegroup_2,
+        aws_instance.bastion
+    ]
+
+    connection {
+        type = "ssh"
+        user = "ubuntu"
+        private_key = "${file("DevOps_Study.pem")}"
+        host = aws_instance.bastion.public_ip
+    }
+
+    provisioner "file" {
+        source = ".aws"
+        destination = "/home/ubuntu"# == "~/.aws"
+        #connection {
+        #    type = "ssh"
+        #    user = "ubuntu"
+        #    private_key = "${file("DevOps_Study.pem")}"
+        #    host = aws_instance.bastion.public_ip
+        #}
+    }
 
     provisioner "file" {
         source = "./k8s-manifests"
         destination = "/home/ubuntu/k8s-manifests"
-
-        connection {
-            type = "ssh"
-            user = "ubuntu"
-            private_key = "${file("DevOps_Study.pem")}"
-            host = aws_instance.bastion.public_ip
-        }
     }
+
+    provisioner "remote-exec" {
+        inline = [
+            "chmod 777 /home/ubuntu/k8s-manifests/boot_strapping.sh",
+            "bash /home/ubuntu/k8s-manifests/boot_strapping.sh"
+        ]
+   }
 }
+
+
+
+
+
+
+
+
+
+

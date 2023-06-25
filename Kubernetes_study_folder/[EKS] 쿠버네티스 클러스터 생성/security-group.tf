@@ -100,7 +100,8 @@ resource "aws_security_group" "bastion_sg" {
         from_port = var.ssh_port
         to_port = var.ssh_port
         protocol = "tcp"
-        cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
+        cidr_blocks = ["0.0.0.0/0"]
+        #["${chomp(data.http.myip.body)}/32"]
     }
 
     egress {
