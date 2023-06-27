@@ -9,10 +9,10 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
         aws_subnet.public_subnet_c.id
         ]
 
-    instance_types = ["t3a.medium"]
+    instance_types = ["m5.xlarge"]
     
     capacity_type = "SPOT"
-    disk_size = 20
+    disk_size = 50
     
     labels = {
         "role" = "eks-nodegroup"
@@ -43,10 +43,10 @@ resource "aws_eks_node_group" "eks-nodegroup_2" {
         aws_subnet.public_subnet_a.id,
         aws_subnet.public_subnet_c.id
         ]
-    instance_types = ["t3a.medium"]
+    instance_types = ["m5.xlarge"]
     capacity_type = "SPOT"
     
-    disk_size= 20
+    disk_size= 50
 
     labels = {
         "role" = "eks-nodegroup"

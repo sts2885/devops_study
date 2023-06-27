@@ -64,35 +64,37 @@ aws iam create-policy \
 eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=eks-cluster --approve
 
 
+echo "detach role for lb controller iam service account and wait 5 sec"
 #이전에 쓴 eksctl iam service account 지우기
 aws iam detach-role-policy \
 --role-name AmazonEKSLoadBalancerControllerRole \
---policy-arn arn:aws:iam::<iamid>:policy/AWSLoadBalancerControllerAdditionalIAMPolicy
+--policy-arn arn:aws:iam::<iam_id>:policy/AWSLoadBalancerControllerAdditionalIAMPolicy
+
+sleep 5
+
+echo "delete lb controller iam service account and wait5 sec"
+
 
 eksctl delete iamserviceaccount \
 --cluster eks-cluster \
 --namespace kube-system \
 --name aws-load-balancer-controller
 
+sleep 5
+
 #aws lb controller 설치
 #https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/aws-load-balancer-controller.html
 
-
-#기존에 eksctl get iamserviceaccount를 통해 기존버전이 있으면 지우고 생성
-#시작 전에 cloud formation에서 iamserviceaccount 손으로 삭제 하고 시작해야됨...
-#https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/stackinfo?filteringText=&filteringStatus=active&viewNested=true&stackId=arn%3Aaws%3Acloudformation%3Aus-east-1%3A222170749288%3Astack%2Feksctl-eks-cluster-addon-iamserviceaccount-kube-system-aws-load-balancer-controller%2F82a68a90-1309-11ee-9d02-121d84b62ce9
-#이거 생성한 세션에서 삭제 안하면 delete failed 뜨고 안됨.
-
-#iam 들어가서 arn 찾아 놔야 함
 eksctl create iamserviceaccount \
 --cluster=eks-cluster \
 --namespace=kube-system \
 --name=aws-load-balancer-controller \
 --role-name AmazonEKSLoadBalancerControllerRole \
---attach-policy-arn=arn:aws:iam::<iamid>:policy/AWSLoadBalancerControllerIAMPolicy \
+--attach-policy-arn=arn:aws:iam::<iam_id>:policy/AWSLoadBalancerControllerIAMPolicy \
 --override-existing-serviceaccounts \
 --approve
 
+sleep 5
 
 
 
@@ -104,22 +106,25 @@ aws iam create-policy \
 
 aws iam attach-role-policy \
   --role-name AmazonEKSLoadBalancerControllerRole \
-  --policy-arn arn:aws:iam::<iamid>:policy/AWSLoadBalancerControllerAdditionalIAMPolicy
+  --policy-arn arn:aws:iam::<iam_id>:policy/AWSLoadBalancerControllerAdditionalIAMPolicy
 
 
+sleep 5
 
 
+#certmanager는 kubeflow에 있는 거로 쓸 예정
 #https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/aws-load-balancer-controller.html
 #certmanager, albcontroller.yaml(v2_4_7_full.yaml) 여기 대로 써라
-kubectl apply \
-    --validate=false \
-    -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+#kubectl apply \
+#    --validate=false \
+#    -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
 
+#가끔 iam service account 설치 되도  한번에 이거 설치 안될때 있음
 curl -Lo v2_4_7_full.yaml https://github.com/kubernetes-sigs/aws-load-balancer-controller/releases/download/v2.4.7/v2_4_7_full.yaml
 
 sed -i.bak -e '561,569d' ./v2_4_7_full.yaml
 
-sed -i.bak -e 's|your-cluster-name|<eks cluster name>|' ./v2_4_7_full.yaml
+sed -i.bak -e 's|your-cluster-name|eks-cluster|' ./v2_4_7_full.yaml
 kubectl apply -f v2_4_7_full.yaml
 curl -Lo v2_4_7_ingclass.yaml https://github.com/kubernetes-sigs/aws-load-balancer-controller/releases/download/v2.4.7/v2_4_7_ingclass.yaml
 kubectl apply -f v2_4_7_ingclass.yaml
@@ -128,7 +133,122 @@ kubectl get deployment -n kube-system aws-load-balancer-controller
 
 
 
+echo "detach role for ebs csi driver iam service account and wait 5 sec"
+#이전에 쓴 eksctl iam service account 지우기
+aws iam detach-role-policy \
+--role-name AmazonEKS_EBS_CSI_DriverRole \
+--policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+
+sleep 5
+
+echo "delete ebs csi driver iam service account and wait5 sec"
 
 
+eksctl delete iamserviceaccount \
+--cluster eks-cluster \
+--namespace kube-system \
+--name ebs-csi-controller-sa
+
+sleep 5
+
+###ebs csi
+
+eksctl create iamserviceaccount \
+  --name ebs-csi-controller-sa \
+  --namespace kube-system \
+  --cluster eks-cluster \
+  --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+  --approve \
+  --role-only \
+  --role-name AmazonEKS_EBS_CSI_DriverRole
+
+sleep 5
+
+eksctl create addon --name aws-ebs-csi-driver --cluster eks-cluster --service-account-role-arn arn:aws:iam::<iam_id>:role/AmazonEKS_EBS_CSI_DriverRole --force
+
+sleep 5
+
+
+####efs csi driver###
+
+#delete past version
+
+echo "detach role for efs csi driver iam service account and wait 5 sec"
+#이전에 쓴 eksctl iam service account 지우기
+aws iam detach-role-policy \
+--role-name AmazonEKS_EFS_CSI_DriverRole \
+--policy-arn arn:aws:iam::<iam_id>:policy/AmazonEKS_EFS_CSI_Driver_Policy
+
+sleep 5
+
+echo "delete efs csi driver iam service account and wait5 sec"
+
+
+eksctl delete iamserviceaccount \
+--cluster eks-cluster \
+--namespace kube-system \
+--name efs-csi-controller-sa
+
+sleep 5
+
+
+curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-efs-csi-driver/master/docs/iam-policy-example.json
+
+aws iam create-policy \
+    --policy-name AmazonEKS_EFS_CSI_Driver_Policy \
+    --policy-document file://iam-policy-example.json
+
+
+
+eksctl create iamserviceaccount \
+    --cluster eks-cluster \
+    --namespace kube-system \
+    --name efs-csi-controller-sa \
+    --attach-policy-arn arn:aws:iam::<iam_id>:policy/AmazonEKS_EFS_CSI_Driver_Policy \
+    --approve \
+    --region us-east-1\
+    --role-name AmazonEKS_EFS_CSI_DriverRole
+
+
+#https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/efs-csi.html
+
+#helm 설치 : 교재
+curl -L https://git.io/get_helm.sh | bash -s -- --version v3.8.2
+
+helm version
+
+helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
+
+helm repo update
+
+
+#602401143452.dkr.ecr.us-east-1.amazonaws.com
+#컨테이너 이미지 주소. 리전별로 값이 다를 수 있음.
+helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
+--namespace kube-system \
+--set image.repository=602401143452.dkr.ecr.us-east-1.amazonaws.com/eks/aws-efs-csi-driver \
+--set controller.serviceAccount.create=false \
+--set controller.serviceAccount.name=efs-csi-controller-sa
+
+kubectl get pods -n kube-system | grep efs-csi-control
+
+
+##### kubeflow 설치 #####
+#kustomize 설치
+curl --silent --location "https://github.com/kubernetes-sigs/kustomize/releases/download/v3.2.0/kustomize_3.2.0_linux_amd64" -o /tmp/kustomize
+sudo chmod +x /tmp/kustomize && sudo mv -v /tmp/kustomize /usr/local/bin
+
+#버전을 eks 버전과 호환되는 버전을 검색후 (eks kubeflow compatible) 맞는 버전 기입
+export KUBEFLOW_RELEASE_VERSION=v1.7.0
+#이게 aws cli 버전이 아니라 kubeflow 깃허브에 release 버전 이름임
+export AWS_RELEASE_VERSION=v1.7.0-aws-b1.0.2
+git clone GitHub - awslabs/kubeflow-manifests: KubeFlow on AWS  && cd kubeflow-manifests
+git checkout ${AWS_RELEASE_VERSION}
+git clone --branch ${KUBEFLOW_RELEASE_VERSION} GitHub - kubeflow/manifests: A repository for Kustomize manifests  upstream
+
+while ! kustomize build deployments/vanilla | kubectl apply -f -; do echo "Retrying to apply resources"; sleep 30; done
+
+#In the login screen, use the default email (user@example.com) and password (12341234)
+#kubectl port-forward --address 0.0.0.0 svc/istio-ingressgateway -n istio-system 8080:80
 
 echo "kubernetes_ready"

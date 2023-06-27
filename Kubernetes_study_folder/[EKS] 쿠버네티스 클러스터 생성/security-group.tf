@@ -1,3 +1,30 @@
+
+
+#### EFS Security Group ####
+
+resource "aws_security_group" "efs-sg" {
+  description = "EFS security group"
+
+  egress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = "0"
+    protocol    = "-1"
+    self        = "false"
+    to_port     = "0"
+  }
+
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = "2049"
+    protocol    = "tcp"
+    self        = "false"
+    to_port     = "2049"
+  }
+
+  name   = "efs-sg"
+  vpc_id = aws_vpc.kube_vpc.id
+}
+
 #https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/sec-group-reqs.html
 #기본적으로는 eks에서 어떤 포트를 사용하는지 공개하지 않고 있다.
 #그냥 쿠버네티스 쓰는거 그대로 쓰기에도 설정이나,
