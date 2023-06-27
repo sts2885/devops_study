@@ -9,3 +9,4 @@ provider.tf
 config
 credentials
 .ipynb_checkpoints
+boot_strapping.sh
