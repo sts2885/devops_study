@@ -20,7 +20,9 @@ resource "null_resource" "bootstrap_ctrl_and_kf" {
     provisioner "remote-exec" {
         inline = [
             "chmod 777 /home/ubuntu/k8s-manifests/bootstrap_ctrl_and_kf.sh",
-            "bash /home/ubuntu/k8s-manifests/bootstrap_ctrl_and_kf.sh"
+            "bash /home/ubuntu/k8s-manifests/bootstrap_ctrl_and_kf.sh",
+            "nohup bash /home/ubuntu/port_forward.sh 0<&- &> /home/ubuntu/kubeflow.log &",
+            "sleep 1"
         ]
    }
 }
