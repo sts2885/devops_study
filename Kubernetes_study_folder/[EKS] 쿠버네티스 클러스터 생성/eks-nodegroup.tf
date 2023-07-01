@@ -9,7 +9,7 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
         aws_subnet.public_subnet_c.id
         ]
 
-    instance_types = ["m5.xlarge"]
+    instance_types = ["t3a.large"]#["m5.xlarge"]
     
     capacity_type = "SPOT"
     disk_size = 50
