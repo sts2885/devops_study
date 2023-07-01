@@ -57,6 +57,25 @@ resource "aws_security_group_rule" "eks-cluster-sg-ingress" {
     #["0.0.0.0/0"]#
 }
 
+#https://kubernetes.io/ko/docs/reference/networking/ports-and-protocols/
+#TCP	인바운드	30000-32767	NodePort 서비스
+resource "aws_security_group_rule" "eks-cluster-sg-ingress_for_node_port" {
+    security_group_id = aws_security_group.eks-cluster-sg.id
+    type = "ingress"
+    description = "ingress sg rule for eks-pods node port node port"
+    from_port = 30000
+    to_port = 32767
+    protocol = "tcp"
+    cidr_blocks = [
+        "0.0.0.0/0"
+        #aws_vpc.kube_vpc.cidr_block,
+        #aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block,
+        #"${chomp(data.http.myip.body)}/32"
+    ]
+}
+
+
+
 resource "aws_security_group_rule" "eks-cluster-sg-egress" {
 
     security_group_id = aws_security_group.eks-cluster-sg.id
@@ -80,6 +99,9 @@ resource "aws_security_group" "eks-pods-sg"{
     }
 }
 
+
+
+
 resource "aws_security_group_rule" "eks-pods-sg-ingress" {
     security_group_id = aws_security_group.eks-pods-sg.id
     type = "ingress"
@@ -93,6 +115,26 @@ resource "aws_security_group_rule" "eks-pods-sg-ingress" {
         "${chomp(data.http.myip.body)}/32"
     ]
 }
+
+
+#https://kubernetes.io/ko/docs/reference/networking/ports-and-protocols/
+#TCP	인바운드	30000-32767	NodePort 서비스
+resource "aws_security_group_rule" "eks-pods-sg-ingress_for_node_port" {
+    security_group_id = aws_security_group.eks-pods-sg.id
+    type = "ingress"
+    description = "ingress sg rule for eks-pods node port"
+    from_port = 30000
+    to_port = 32767
+    protocol = "tcp"
+    cidr_blocks = [
+        "0.0.0.0/0"
+        #aws_vpc.kube_vpc.cidr_block,
+        #aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block,
+        #"${chomp(data.http.myip.body)}/32"
+    ]
+}
+
+
 
 resource "aws_security_group_rule" "eks-pods-sg-egress" {
     security_group_id = aws_security_group.eks-pods-sg.id
@@ -131,6 +173,13 @@ resource "aws_security_group" "bastion_sg" {
         #["${chomp(data.http.myip.body)}/32"]
     }
 
+    ingress {
+        from_port = var.access_port
+        to_port = var.access_port
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
     egress {
         from_port = "0"
         to_port = "0"
@@ -150,6 +199,10 @@ variable "ssh_port" {
     default = 22
 }
 
+variable "access_port" {
+    type = number
+    default = 8080
+}
 
 
 
