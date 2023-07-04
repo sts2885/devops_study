@@ -11,7 +11,7 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
 
     instance_types = ["m5.xlarge"]
     
-    capacity_type = "SPOT"
+    capacity_type = "ON_DEMAND"#"SPOT"
     disk_size = 50
     
     labels = {
@@ -44,7 +44,7 @@ resource "aws_eks_node_group" "eks-nodegroup_2" {
         aws_subnet.public_subnet_c.id
         ]
     instance_types = ["m5.xlarge"]
-    capacity_type = "SPOT"
+    capacity_type = "ON_DEMAND"#"SPOT"
     
     disk_size= 50
 
