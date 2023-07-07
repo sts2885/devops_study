@@ -38,6 +38,7 @@ aws iam create-policy \
 
 eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=eks-cluster --approve
 
+sleep 5
 
 echo "detach role for lb controller iam service account and wait 5 sec"
 #이전에 쓴 eksctl iam service account 지우기
@@ -53,9 +54,11 @@ echo "delete lb controller iam service account and wait5 sec"
 eksctl delete iamserviceaccount \
 --cluster eks-cluster \
 --namespace kube-system \
---name aws-load-balancer-controller
+--name aws-load-balancer-controller \
+--region us-east-1
 
-sleep 5
+
+sleep 10
 
 #aws lb controller 설치
 #https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/aws-load-balancer-controller.html
@@ -71,6 +74,7 @@ eksctl create iamserviceaccount \
 --cluster=eks-cluster \
 --namespace=kube-system \
 --name=aws-load-balancer-controller \
+--region us-east-1 \
 --role-name AmazonEKSLoadBalancerControllerRole \
 --attach-policy-arn=arn:aws:iam::<iam_id>:policy/AWSLoadBalancerControllerIAMPolicy \
 --override-existing-serviceaccounts \
@@ -132,9 +136,10 @@ echo "delete ebs csi driver iam service account and wait5 sec"
 eksctl delete iamserviceaccount \
 --cluster eks-cluster \
 --namespace kube-system \
---name ebs-csi-controller-sa
+--name ebs-csi-controller-sa \
+--region us-east-1
 
-sleep 5
+sleep 10
 
 ###ebs csi
 
@@ -142,6 +147,7 @@ eksctl create iamserviceaccount \
   --name ebs-csi-controller-sa \
   --namespace kube-system \
   --cluster eks-cluster \
+  --region us-east-1 \
   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
   --approve \
   --role-only \
@@ -149,7 +155,11 @@ eksctl create iamserviceaccount \
 
 sleep 5
 
-eksctl create addon --name aws-ebs-csi-driver --cluster eks-cluster --service-account-role-arn arn:aws:iam::<iam_id>:role/AmazonEKS_EBS_CSI_DriverRole --force
+eksctl create addon \
+--name aws-ebs-csi-driver \
+--cluster eks-cluster \
+--region us-east-1 \
+--service-account-role-arn arn:aws:iam::<iam_id>:role/AmazonEKS_EBS_CSI_DriverRole --force
 
 sleep 5
 
@@ -172,9 +182,10 @@ echo "delete efs csi driver iam service account and wait5 sec"
 eksctl delete iamserviceaccount \
 --cluster eks-cluster \
 --namespace kube-system \
---name efs-csi-controller-sa
+--name efs-csi-controller-sa \
+--region us-east-1
 
-sleep 5
+sleep 10
 
 
 curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-efs-csi-driver/master/docs/iam-policy-example.json
@@ -189,10 +200,13 @@ eksctl create iamserviceaccount \
     --cluster eks-cluster \
     --namespace kube-system \
     --name efs-csi-controller-sa \
+    --region us-east-1 \
     --attach-policy-arn arn:aws:iam::<iam_id>:policy/AmazonEKS_EFS_CSI_Driver_Policy \
     --approve \
-    --region us-east-1\
+    --region us-east-1 \
     --role-name AmazonEKS_EFS_CSI_DriverRole
+
+
 
 
 #https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/efs-csi.html
@@ -242,16 +256,31 @@ git clone --branch ${KUBEFLOW_RELEASE_VERSION} https://github.com/kubeflow/manif
 
 #자꾸 한번에 설치 안되면 kubeflow는 손으로 설치 할 수 밖에 없어...
 
+#jupyter 생성을 위해서 secure cookie 해제
+cp -rf /home/ubuntu/k8s-manifests/secure_false_jupyter.yaml /home/ubuntu/kubeflow-manifests/upstream/apps/jupyter/jupyter-web-app/upstream/base/deployment.yaml
+
+kubectl apply -f /home/ubuntu/k8s-manifests/pipeline_token.yaml
+
+#while ! kustomize build deployments/vanilla | kubectl apply -f -; do echo "Retrying to apply resources"; sleep 30; done
+
 while ! kustomize build /home/ubuntu/kubeflow-manifests/deployments/vanilla | kubectl apply -f -; do echo "Retrying to apply resources"; sleep 30; done
 
+
+
+#이건 결국 실패함
+#kubeflow는 secure cookie라는 걸 써서 
+#웹사이트 인증서가 없으면 http로 접근을 못하게 막음
+#node port는 왠지 모르겠음 그냥 안됨
+#그래서 그냥 무한 루프로 port forward하게 뒀음.
+#한번 켜서 영원히 쓸 수 있게 되는 날이 오면 
+#그때를 위해 alb 손으로 연결하는 법을 알아냄
 #설치하면 현재는 istio-ingressgateway 가 cluster ip로 되어 있음
 #kubeflow 홈페이지 들어가니까 해결책이 있었다.
 #https://www.kubeflow.org/docs/distributions/ibm/deploy/authentication/
 #지금은 스케일이 작아서 node port만 써도 되는데 커지면 lb가 들어가야 겠지
 #kubectl patch svc istio-ingressgateway -n istio-system -p '{"spec":{"type":"ClusterIP"}}'
 #kubectl patch svc istio-ingressgateway -n istio-system -p '{"spec":{"type":"LoadBalancer"}}'
-#lb 쓰면 destroy하고 콘솔에서 따로 지우기 너무 귀찮음
-kubectl patch svc istio-ingressgateway -n istio-system -p '{"spec":{"type":"NodePort"}}'
+#kubectl patch svc istio-ingressgateway -n istio-system -p '{"spec":{"type":"NodePort"}}'
 
 
 #In the login screen, use the default email (user@example.com) and password (12341234)
@@ -261,10 +290,27 @@ kubectl patch svc istio-ingressgateway -n istio-system -p '{"spec":{"type":"Node
 
 
 #service 출력시키자
-kubectl get svc -n istio-system | grep istio-ingressgateway
+#kubectl get svc -n istio-system | grep istio-ingressgateway
 
 #마지막에 노드 출력 시켜서 ip 보고 node port 들어가자
-kubectl get node -o wide
+#kubectl get node -o wide
+
+#진짜 개고생 했는데 돌고 돌아서 이거 쓰네 ㅡㅡ
+#ALB연결하는 방법은 정확히 알았는데, terraform, ad-hoc script로 자동으로 연결시키는게 너무 힘들어서 그냥 돌고 돌아 무한 반복 시키는 코드로 선회했다.
+echo """
+#!/bin/bash
+while true; do kubectl port-forward --address 0.0.0.0 svc/istio-ingressgateway -n istio-system 8080:80; done
+""" | tee /home/ubuntu/port_forward.sh
+
+
+#kubectl top node, kubectl top pod 명령어 수행
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+
+sleep 120
+
+#this script will be run at .tf file. 
+#nohup bash /home/ubuntu/port_forward.sh 0<&- &> /home/ubuntu/kubeflow.log &
 
 
 echo "kubernetes_ready"
