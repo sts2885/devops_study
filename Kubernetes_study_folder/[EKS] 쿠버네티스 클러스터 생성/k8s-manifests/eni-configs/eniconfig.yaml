@@ -11,8 +11,8 @@ metadata:
  name: us-east-1a
 spec:
   securityGroups: 
-    - sg-00447dcf9a2a1b90d
-  subnet: subnet-021cdd37e2bab84a0
+    - sg-0a1380ae75f60bc5d
+  subnet: subnet-07449c1b48ff8be00
 ---
 apiVersion: crd.k8s.amazonaws.com/v1alpha1
 kind: ENIConfig
@@ -20,5 +20,5 @@ metadata:
  name: us-east-1c
 spec:
   securityGroups: 
-    - sg-00447dcf9a2a1b90d
-  subnet: subnet-01a8089949fa72ec1
+    - sg-0a1380ae75f60bc5d
+  subnet: subnet-0406390ff7af6d361

@@ -20,7 +20,7 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
     #m5.large	0.096 USD
     #m6a.large	0.0864 USD => 데이터 처리 때는 이거 쓰고, 학습때는 데스크톱 쓸꺼니까 t3a쓰면 될듯
     #t3a.large	0.0752 USD => 학습, 처리 작업때는 쓰면 안되지만 지금 단계에서는 괜찮을듯 => 써봤는데 작아서 그런가? 주피터가 안만들어짐
-    #t3.large	0.0832 USD
+    #t3.large	0.0832 USD -> 버그 고치고 다시 써봤는데 안됨.
     #t4g.large	0.0672 USD => 안됨
     #large는 t3a, m5 m6a 전부다 설치가 제대로 안됨 그나마 t3a는 설치는 됐는데 jupyter가 생성이 안됨.
     #ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ#
@@ -33,6 +33,10 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
     #m6i.xlarge	0.192 USD
     #m5.xlarge	0.192 USD
     #m5a.xlarge	0.172 USD
+
+    #mem은 권장 사양이 6c 12g 50gD였던걸 감안하면 다른 타입을 섞어도 될지도
+    #c6a.large	0.0765 USD	2	4GiB
+    #c6a.xlarge	0.153 USD	4	8GiB
 
     #All Amazon EKS AMIs don't currently support the g5g and mac families.
     #Arm and non-accelerated Amazon EKS AMIs don't support the g3, g4, inf, and p families.
@@ -72,7 +76,7 @@ resource "aws_eks_node_group" "eks-nodegroup_2" {
         aws_subnet.public_subnet_a.id,
         aws_subnet.public_subnet_c.id
         ]
-    instance_types = ["t3a.large"]#["m5.xlarge"]#["t3a.large"]#
+    instance_types = ["c6a.xlarge"]#["m5.xlarge"]#["t3a.large"]#
     capacity_type = "ON_DEMAND"#"SPOT"
     
     disk_size= 50
