@@ -1,5 +1,14 @@
 
 
+
+import kfp
+from kfp import dsl
+from kfp.components import func_to_container_op, InputPath, OutputPath
+
+#from istio_auth import get_istio_auth_session
+
+from istio_auth_with_client import client
+################
 """
 kubeflow pipeline에서 storage를 쓰는 방식
 
@@ -57,3 +66,32 @@ def pv_test_pipeline():
     )
     
     step2.after(step1)
+
+
+#GCS는 컴포넌트 하나만 다운로드 받으면 gcs를 바로 pv로 마운트 해버릴 수 있는거 같다.
+
+########
+from kfp import compiler
+exp = client.create_experiment(name="test")
+exp_test = client.get_experiment(experiment_name = "test")
+compiler.Compiler().compile(pv_test_pipeline, "pipeline.tar.gz")
+run = client.run_pipeline(exp.id, "pipeline1", "pipeline.tar.gz")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
