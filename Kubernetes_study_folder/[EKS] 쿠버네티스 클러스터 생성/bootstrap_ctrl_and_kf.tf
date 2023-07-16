@@ -22,7 +22,10 @@ resource "null_resource" "bootstrap_ctrl_and_kf" {
             "chmod 777 /home/ubuntu/k8s-manifests/bootstrap_ctrl_and_kf.sh",
             "bash /home/ubuntu/k8s-manifests/bootstrap_ctrl_and_kf.sh",
             "nohup bash /home/ubuntu/port_forward.sh 0<&- &> /home/ubuntu/kubeflow.log &",
-            "sleep 1"
+            "sleep 1",
+            "nohup bash /home/ubuntu/port_forward_minio.sh 0<&- &> /home/ubuntu/kubeflow2.log &",
+            "sleep 1",
+            "sudo apt install -y net-tools"
         ]
    }
 }

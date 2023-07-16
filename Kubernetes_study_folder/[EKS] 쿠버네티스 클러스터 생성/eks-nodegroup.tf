@@ -26,7 +26,8 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
     #ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ#
 
     #t3.xlarge	0.1664 USD
-    #t3a.xlarge	0.1504 USD => 테스트 => 뭐냐 왜 statefulset안되냐? => eksctl 변경 사항 때문에 에러 => 고침 => 정상작동=> 혹시 사이즈 줄여도 될까?
+    #t3a.xlarge	0.1504 USD #2개 10시간 3910원
+    #=> 테스트 => 뭐냐 왜 statefulset안되냐? => eksctl 변경 사항 때문에 에러 => 고침 => 정상작동=> 혹시 사이즈 줄여도 될까?
     #t2.xlarge	0.1856 USD
 
     #m6a.xlarge	0.1728 USD => 실제 돌릴떄 이렇게 하면 될듯 => t3a도 되니까 이거도 되겠지
@@ -42,7 +43,7 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
     #Arm and non-accelerated Amazon EKS AMIs don't support the g3, g4, inf, and p families.
     #Accelerated Amazon EKS AMIs don't support the a, c, hpc, m, and t families.
     
-    instance_types = ["t3a.large"]#["m5.xlarge"]#["t3a.large"]#
+    instance_types = ["t3a.xlarge"]#["m5.xlarge"]#["t3a.large"]#
     
     capacity_type = "ON_DEMAND"#"SPOT"
     disk_size = 50
@@ -76,7 +77,7 @@ resource "aws_eks_node_group" "eks-nodegroup_2" {
         aws_subnet.public_subnet_a.id,
         aws_subnet.public_subnet_c.id
         ]
-    instance_types = ["c6a.xlarge"]#["m5.xlarge"]#["t3a.large"]#
+    instance_types = ["t3a.xlarge"]#["m5.xlarge"]#["t3a.large"]#
     capacity_type = "ON_DEMAND"#"SPOT"
     
     disk_size= 50
