@@ -1,16 +1,17 @@
 
 #커스텀 도커파일
-#pull 받기 전에 docker ecr public 용 login하고 할것
-#https://yoo11052.tistory.com/146
 
+#도대체가 이 책에서 나온 코드는 제대로 된게 하나도 없냐?
 
-#https://gallery.ecr.aws/j1r0q0g6/notebooks/notebook-servers/jupyter-tensorflow-full
-#https://www.kubeflow.org/docs/components/notebooks/container-images/
+# See https://www.kubeflow.org/docs/components/notebooks/container-images/
+#ARG base
 
-#kfp.dsl의 graph component가 안되고 따로 pip install 로 설치해도 안되서
-#그냥 full로 한번 설치해보겠음
-
-FROM public.ecr.aws/j1r0q0g6/notebooks/notebook-servers/jupyter-tensorflow-full:master
+#ECR public 에서 컨테이너 받으려면 awscli 통해서 ecr public login해야 함
+#kubeflow-on-aws/notebook-servers/jupyter-tensorflow:2.12.0-cpu-py310-ubuntu20.04-ec2-v1.0
+#public.ecr.aws/j1r0q0g6/notebooks/notebook-servers/jupyter-tensorflow:tag
+#FROM kubeflow-on-aws/notebook-servers/jupyter-tensorflow:2.12.0-cpu-py310-ubuntu20.04-ec2-v1.0
+#tensorflow 2.5버전 주피터 서버
+FROM public.ecr.aws/j1r0q0g6/notebooks/notebook-servers/jupyter-tensorflow:master-a3e67698
 ARG sparkversion=3.4.1
 ARG sparkrelease=spark-3.4.1-bin-without-hadoop
 #ARG sparkserver https://archive.apache.org/dist/spark/spark-3.4.1/spark-3.4.1-bin-without-hadoop.tgz
