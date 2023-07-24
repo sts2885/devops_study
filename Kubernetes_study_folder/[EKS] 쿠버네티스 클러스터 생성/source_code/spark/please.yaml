@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: local-pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.0, pipelines.kubeflow.org/pipeline_compilation_time: '2023-07-22T19:08:09.002183',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "no_need_to_ask_why", "name":
+      "local_pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.0}
+spec:
+  entrypoint: local-pipeline
+  templates:
+  - name: foo
+    resource:
+      action: create
+      manifest: |
+        apiVersion: sparkoperator.k8s.io/v1beta2
+        kind: SparkApplication
+        metadata:
+          name: pyspark-pi
+          namespace: kubeflow-user-example-com
+        spec:
+          driver:
+            coreLimit: 1200m
+            cores: 1
+            labels:
+              version: 3.1.1
+            memory: 512m
+            serviceAccount: my-release-spark
+          executor:
+            cores: 1
+            instances: 1
+            labels:
+              version: 3.1.1
+            memory: 512m
+          image: gcr.io/spark-operator/spark-py:v3.1.1
+          imagePullPolicy: Always
+          mainApplicationFile: local:///opt/spark/examples/src/main/python/pi.py
+          mode: cluster
+          pythonVersion: '3'
+          restartPolicy:
+            onFailureRetries: 3
+            onFailureRetryInterval: 10
+            onSubmissionFailureRetries: 5
+            onSubmissionFailureRetryInterval: 20
+            type: OnFailure
+          sparkVersion: 3.1.1
+          type: Python
+    outputs:
+      parameters:
+      - name: foo-manifest
+        valueFrom: {jsonPath: '{}'}
+      - name: foo-name
+        valueFrom: {jsonPath: '{.metadata.name}'}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.0
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: local-pipeline
+    dag:
+      tasks:
+      - {name: foo, template: foo}
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner

@@ -25,7 +25,12 @@ resource "null_resource" "bootstrap_ctrl_and_kf" {
             "sleep 1",
             "nohup bash /home/ubuntu/port_forward_minio.sh 0<&- &> /home/ubuntu/kubeflow2.log &",
             "sleep 1",
-            "sudo apt install -y net-tools"
+            "sudo apt install -y net-tools",
+            "helm repo add spark-operator https://googlecloudplatform.github.io/spark-on-k8s-operator",
+
+            "helm install my-release spark-operator/spark-operator --namespace kubeflow-user-example-com --create-namespace",
+
+            "kubectl apply -f /home/ubuntu/my_spark_service.yaml"
         ]
    }
 }
