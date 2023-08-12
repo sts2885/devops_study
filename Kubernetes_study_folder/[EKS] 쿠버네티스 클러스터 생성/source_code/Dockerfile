@@ -50,7 +50,9 @@ RUN echo "Setting up spark"
 # rm /tmp/${sparkrelease}.tgz && mv ${sparkrelease} spark && \
 # cd spark/python && pip install -e .
 
-#wget https://dlcdn.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz
+#spark-3.4.1-bin-hadoop3.tgz 
+#wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.1/hadoop-aws-3.3.1.jar
+#wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.901/aws-java-sdk-bundle-1.11.901.jar
 COPY spark /opt/spark
 
 RUN cd /opt/spark/python && pip install -e .

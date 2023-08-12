@@ -53,9 +53,9 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
     }
 
     scaling_config {
-        desired_size = local.node_size.desired_size
-        min_size = local.node_size.min_size
-        max_size = local.node_size.max_size
+        desired_size = local.node_size_for_group_1.desired_size
+        min_size = local.node_size_for_group_1.min_size
+        max_size = local.node_size_for_group_1.max_size
     }
 
     depends_on = [
@@ -87,9 +87,9 @@ resource "aws_eks_node_group" "eks-nodegroup_2" {
     }
 
     scaling_config {
-        desired_size = local.node_size.desired_size
-        min_size = local.node_size.min_size
-        max_size = local.node_size.max_size
+        desired_size = local.node_size_for_group_2.desired_size
+        min_size = local.node_size_for_group_2.min_size
+        max_size = local.node_size_for_group_2.max_size
     }
 
     #강의에선 이 부분에 terraformer로 가져온 코드에 의해 launch template을 연결해줬는데
