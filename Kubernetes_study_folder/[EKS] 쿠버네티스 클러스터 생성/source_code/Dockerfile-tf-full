@@ -67,6 +67,18 @@ RUN pip install findspark
 #RUN curl https://gist.githubusercontent.com/danking/f8387f5681b03edc5babdf36e14140bc/raw/23d43a2cc673d80adcc8f2a1daee6ab252d6f667/install-s3-connector.sh | bash
 
 RUN pip install kfp==1.8.19
+RUN pip install pandas
+RUN pip install opencv-python
+RUN pip install numpy
+RUN pip install minio==6.0.2
+
+
+RUN apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+RUN add-apt-repository --yes "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+RUN apt update
+RUN apt install -y docker-ce docker-ce-cli containerd.io
+
 
 # Fix permissions
 WORKDIR /opt/spark/work-dir

@@ -227,6 +227,13 @@ resource "aws_security_group" "bastion_sg" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 
+    ingress {
+        from_port = var.collector_port
+        to_port = var.collector_port
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
     egress {
         from_port = "0"
         to_port = "0"
@@ -269,5 +276,10 @@ variable "node_exporter_port" {
 variable "minio_port" {
     type = number
     default = 9000
+}
+
+variable "collector_port" {
+    type = number
+    default = 8889
 }
 

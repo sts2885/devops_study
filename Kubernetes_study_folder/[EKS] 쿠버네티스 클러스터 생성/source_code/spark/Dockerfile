@@ -15,7 +15,7 @@ ENV SPARK_HOME /opt/spark
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ENV PATH=$PATH:${JAVA_HOME}/bin:${SPARK_HOME}/bin:${SPARK_HOME}/sbin
 ENV PYSPARK_PYTHON=/usr/bin/python3
- 
+
 
 # Install Java because Spark needs it
 RUN apt-get update
@@ -34,6 +34,10 @@ RUN apt-get install -y python3-pip
 RUN cd /opt/spark/python && pip3 install -e .
 
 RUN pip3 install findspark
+RUN pip3 install minio==6.0.2
+RUN pip3 install opencv-python
+RUN pip3 install pandas
+RUN pip3 install numpy
 
 # Fix permissions
 WORKDIR /opt/spark/work-dir

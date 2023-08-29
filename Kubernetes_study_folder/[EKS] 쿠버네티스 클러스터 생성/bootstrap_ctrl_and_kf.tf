@@ -25,6 +25,13 @@ resource "null_resource" "bootstrap_ctrl_and_kf" {
             "sleep 1",
             "nohup bash /home/ubuntu/port_forward_minio.sh 0<&- &> /home/ubuntu/kubeflow2.log &",
             "sleep 1",
+            "nohup bash /home/ubuntu/port_forward_prometheus.sh 0<&- &> /home/ubuntu/kubeflow3.log &",
+            "sleep 1",
+            "nohup bash /home/ubuntu/port_forward_grafana.sh 0<&- &> /home/ubuntu/kubeflow4.log &",
+            "sleep 1",
+            "nohup bash /home/ubuntu/port_forward_otelCollector.sh 0<&- &> /home/ubuntu/kubeflow5.log &",
+            "sleep 1",
+
             "sudo NEEDRESTART_MODE=a apt install -y net-tools",
             "helm repo add spark-operator https://googlecloudplatform.github.io/spark-on-k8s-operator",
 
