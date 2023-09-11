@@ -1,0 +1,19 @@
+start
+minio connected
+['./global_warming_9/[(256,256),npy]/train/5047279230542885281/band_11.npy'
+ './global_warming_9/[(256,256),npy]/train/5047279230542885281/band_14.npy'
+ './global_warming_9/[(256,256),npy]/train/5047279230542885281/band_10.npy'
+ './global_warming_9/[(256,256),npy]/train/5047279230542885281/band_13.npy'
+ './global_warming_9/[(256,256),npy]/train/5047279230542885281/human_pixel_masks.npy']
+get df with only named .npy, not metadata(json, csv, etc)
+['./global_warming_9/[(256,256),npy]/train/5047279230542885281/band_11.npy'
+ './global_warming_9/[(256,256),npy]/train/5047279230542885281/band_14.npy'
+ './global_warming_9/[(256,256),npy]/train/5047279230542885281/band_10.npy'
+ './global_warming_9/[(256,256),npy]/train/5047279230542885281/band_13.npy'
+ './global_warming_9/[(256,256),npy]/train/5047279230542885281/human_pixel_masks.npy']
+time for preprocess the task :  421.5483195781708
+time for compress the folder :  515.8989007472992
+name_of_file :  9.zip
+name_to_upload :  global_warming/9.zip
+time for uploading :  28.63015389442444
+time for all process :  -966.0773742198944

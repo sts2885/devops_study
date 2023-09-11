@@ -1,0 +1,12 @@
+,record_id,files_path
+0,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/band_08.npy"
+1,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/band_09.npy"
+2,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/band_10.npy"
+3,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/band_11.npy"
+4,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/band_12.npy"
+5,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/band_13.npy"
+6,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/band_14.npy"
+7,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/band_15.npy"
+8,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/band_16.npy"
+9,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/human_pixel_masks.npy"
+10,1000216489776414077,"./global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming/train/1000216489776414077/human_individual_masks.npy"

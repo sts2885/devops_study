@@ -1,0 +1,37 @@
+
+
+
+apiVersion: "kubeflow.org/v1"
+kind: "TFJob"
+metadata:
+  name: "mnist"
+  namespace: "kubeflow"
+spec:
+  runPolicy:
+    cleanPodPolicy: None
+  tfReplicaSpecs:
+    Worker:
+      replicas: 1
+      restartPolicy: Never
+      template:
+        spec:
+          containers:
+            - name: tensorflow
+              #컨테이너 직접 따로 만들어놔야 함.
+              image: escs34/mnist:latest
+              command:
+                - "python"
+                - "/var/source/mnist_jupyter_test.py"
+              #데이터 다운로드 등을 위해 pv가 필요할때 아래처럼
+              #하거나 pipeline에서 minio를 연결해주면 됨
+          #    volumeMounts:
+          #      - mountPath: "/train"
+          #        name: "training"
+          #volumes:
+          #  - name: "training"
+          #    persistentVolumeClaim:
+          #      claimName: "tfevent-volume"
+
+
+
+

@@ -2,6 +2,7 @@
 *.tfstate
 *.tfstate.backup
 .terraform.lock.hcl
+*.lock.info
 provider.tf
 *.pem
 *.ppk
@@ -9,3 +10,6 @@ provider.tf
 config
 credentials
 .ipynb_checkpoints
+boot_strapping.sh
+bootstrap_ctrl_and_kf.sh
+bootstrap_secondary_cidr.sh
