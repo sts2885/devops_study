@@ -6,7 +6,7 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
     node_role_arn = aws_iam_role.iam-role-eks-nodegroup.arn
     subnet_ids = [
         aws_subnet.public_subnet_a.id,
-        aws_subnet.public_subnet_c.id
+        #aws_subnet.public_subnet_c.id
         ]
     #kubectl top 돌려보니까 kubeflow만 딱 깔았을때 m5.xlarge에서 30퍼센트만 메모리를 쓰고 있었음=> 32기가중 1/3 => 10.7기가 제외하면 다 놀음
     #a, i, g => amd, intel, graviton
@@ -75,9 +75,9 @@ resource "aws_eks_node_group" "eks-nodegroup_2" {
     node_role_arn = aws_iam_role.iam-role-eks-nodegroup.arn
     subnet_ids = [
         aws_subnet.public_subnet_a.id,
-        aws_subnet.public_subnet_c.id
+        #aws_subnet.public_subnet_c.id
         ]
-    instance_types = ["t3a.xlarge"]#["m5.xlarge"]#["t3a.large"]#
+    instance_types = ["t3a.medium"]#["t3a.small"]#["t3a.xlarge"]#["m5.xlarge"]#["t3a.large"]#
     capacity_type = "ON_DEMAND"#"SPOT"
     
     disk_size= 50

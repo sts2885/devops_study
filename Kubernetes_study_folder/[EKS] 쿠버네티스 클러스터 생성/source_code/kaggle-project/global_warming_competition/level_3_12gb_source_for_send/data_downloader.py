@@ -53,10 +53,11 @@ class Data_downloader :
             self.minio_bucket_name,
             self.competition_name]
 
-    def download_all_from_kaggle(self, download_folder):
+    def download_all_from_kaggle(self, download_folder, quiet=False):
         self.api.competition_download_files(
             self.competition_name,
-            path = download_folder
+            path = download_folder,
+            quiet = quiet
         )
 
 

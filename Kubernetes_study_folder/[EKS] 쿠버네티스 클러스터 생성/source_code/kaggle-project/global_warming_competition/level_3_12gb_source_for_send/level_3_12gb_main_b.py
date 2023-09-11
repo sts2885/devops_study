@@ -19,10 +19,12 @@
 
 
 
-# In[ ]:
+# In[1]:
 
 
-
+import time
+start_time = time.time()  # 시작 시간 저장
+print("start")
 
 
 # # STAGE 2  
@@ -94,7 +96,7 @@ print("minio connected")
 # In[ ]:
 
 
-
+print("get file list start : ")
 
 
 # make df for current files (use this instead of csv file)  
@@ -118,6 +120,24 @@ file_list = []
 for path, subdirs, files in os.walk(folder_path):
     for name in files:
         file_list.append(os.path.join(path, name))
+
+
+# In[2]:
+
+
+get_file_list_time = time.time()
+
+
+# In[3]:
+
+
+print("get_file_list_time takes : ", get_file_list_time - start_time)
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
@@ -155,7 +175,8 @@ print("extracted file_list uploaded")
 # In[11]:
 
 
-print(files_df['files_path'].head(5).values)
+if len(files_df) != 0:
+    print(files_df['files_path'].head(5).values)
 
 
 # In[ ]:
@@ -174,13 +195,33 @@ print("get df with only named .npy, not metadata(json, csv, etc)")
 
 
 #파일명이 npy 인것만 남김
-files_df = files_df[files_df['files_path'].map(lambda name : name.split('.')[-1] == "npy")]
+if len(files_df) != 0:
+    files_df = files_df[files_df['files_path'].map(lambda name : name.split('.')[-1] == "npy")]
+
+
+# In[4]:
+
+
+get_file_df_time = time.time()
+
+
+# In[5]:
+
+
+print("get_file_df_time takes : ", get_file_df_time - get_file_list_time)
+
+
+# In[ ]:
+
+
+
 
 
 # In[13]:
 
 
-files_df['files_path'].head(5).values
+if len(files_df) != 0:
+    print(files_df['files_path'].head(5).values)
 
 
 # In[ ]:
@@ -218,7 +259,20 @@ print("get df with only name start with band")
 # In[16]:
 
 
-files_df = files_df[ files_df['files_path'].map(lambda name : name.split('/')[-1][:4] == 'band') ]
+if len(files_df) != 0:
+    files_df = files_df[ files_df['files_path'].map(lambda name : name.split('/')[-1][:4] == 'band') ]
+
+
+# In[6]:
+
+
+get_file_df_with_band_time = time.time()
+
+
+# In[7]:
+
+
+print("get_file_df_with_band_time takes : ", get_file_df_with_band_time- get_file_df_time)
 
 
 # In[ ]:
@@ -230,7 +284,8 @@ files_df = files_df[ files_df['files_path'].map(lambda name : name.split('/')[-1
 # In[17]:
 
 
-print(files_df['files_path'].head(5).values)
+if len(files_df) != 0:
+    print(files_df['files_path'].head(5).values)
 
 
 # In[ ]:
@@ -249,19 +304,28 @@ print("get df with only 8,9,10 band")
 
 
 # use band 8,9,10
-files_df_to_change = files_df[ files_df['files_path'].map(lambda name : int(name.split('/')[-1][5:7]) < 11) ]
+files_df_to_change = [] #files_df len이 0이면 이게 생성이 안되어 버려서 에러 뜸
+if len(files_df) != 0:
+    files_df_to_change = files_df[ files_df['files_path'].map(lambda name : int(name.split('/')[-1][5:7]) < 11) ]
 
 
 # In[19]:
 
 
-print(files_df_to_change['files_path'].head(5).values)
+if len(files_df_to_change) != 0:
+    print(files_df_to_change['files_path'].head(5).values)
 
 
-# In[ ]:
+# In[8]:
 
 
+get_file_df_to_change = time.time()
 
+
+# In[9]:
+
+
+print("get file to change_time takes : ", get_file_df_to_change - get_file_df_with_band_time)
 
 
 # In[ ]:
@@ -280,13 +344,34 @@ print("get df with band 11~16 to remove")
 
 
 # remove band 11~16
-files_df_to_remove = files_df[ files_df['files_path'].map(lambda name : int(name.split('/')[-1][5:7]) >= 11) ]
+files_df_to_remove = [] #files_df len이 0이면 이게 생성이 안되어 버려서 에러 뜸
+if len(files_df) != 0:
+    files_df_to_remove = files_df[ files_df['files_path'].map(lambda name : int(name.split('/')[-1][5:7]) >= 11) ]
+
+
+# In[10]:
+
+
+get_file_df_to_remove = time.time()
+
+
+# In[11]:
+
+
+print("get file to remove_time takes : ", get_file_df_to_remove - get_file_df_to_change)
+
+
+# In[ ]:
+
+
+
 
 
 # In[21]:
 
 
-print(files_df_to_remove['files_path'].head(10).values)
+if len(files_df_to_remove) != 0:
+    print(files_df_to_remove['files_path'].head(10).values)
 
 
 # In[ ]:
@@ -342,13 +427,13 @@ def read_change_save(file_path):
 
 
 
-# In[ ]:
+# In[12]:
 
 
 print("change data with 8,9,10 band")
 
 
-# In[27]:
+# In[13]:
 
 
 if len(files_df_to_change) != 0:
@@ -537,7 +622,7 @@ name_to_save= pv_count+'.zip'
 # In[ ]:
 
 
-print("extract folder")
+print("compress folder")
 
 
 # In[37]:
@@ -545,6 +630,18 @@ print("extract folder")
 
 unzip.write_zip(files_base_dir = pv_mount_name+pv_count, name_to_save= name_to_save)
 #unzip.write_zip(files_base_dir = pv_mount_name+pv_count, name_to_save=pv_count+'.zip')
+
+
+# In[14]:
+
+
+compress_time = time.time()
+
+
+# In[16]:
+
+
+print("compress_time takes : ", compress_time - get_file_df_to_remove)
 
 
 # In[ ]:
@@ -569,7 +666,7 @@ print("name_to_upload : ", name_to_upload)
 # In[ ]:
 
 
-
+print("upload start")
 
 
 # In[40]:
@@ -591,10 +688,46 @@ def upload_from_to(from_file, to_file):
 
 
 
+# In[ ]:
+
+
+
+
+
 # In[41]:
 
 
 upload_from_to(name_to_save, name_to_upload)
+
+
+# In[17]:
+
+
+upload_time = time.time()
+
+
+# In[ ]:
+
+
+
+
+
+# In[18]:
+
+
+print("upload_time takes : ", upload_time - compress_time)
+
+
+# In[ ]:
+
+
+
+
+
+# In[19]:
+
+
+print("finish_time : ", upload_time - start_time)
 
 
 # In[ ]:

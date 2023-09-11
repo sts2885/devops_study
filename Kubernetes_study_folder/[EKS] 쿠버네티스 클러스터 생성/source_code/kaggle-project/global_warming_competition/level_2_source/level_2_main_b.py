@@ -13,7 +13,19 @@
 
 
 
-# pipeline에서 environment 넣어준거라고 가정
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+import time
+start_time = time.time()  # 시작 시간 저장
+print("start")
+
 
 # In[ ]:
 
@@ -44,6 +56,7 @@ competition_name = os.environ['competition_name']
 
 pv_mount_name = os.environ['pv_mount_name']
 pv_count = os.environ['pv_count']
+download_from = os.environ['download_from']
 
 
 # In[ ]:
@@ -74,7 +87,7 @@ minio_client = Minio(
 # In[ ]:
 
 
-
+print("minio connected")
 
 
 # Data preprocessing : not recommended. Ad-hoc pipeline like this don't have any fault tolerance logic (like hadoop map reduce or spark). One fault can hurt all data integrity  
@@ -137,12 +150,6 @@ for path, subdirs, files in os.walk(folder_path):
 files_df = pd.DataFrame(data=file_list, columns=['files_path'])
 
 
-# In[10]:
-
-
-files_df
-
-
 # In[ ]:
 
 
@@ -154,38 +161,41 @@ files_df
 # In[11]:
 
 
-files_df['files_path'].values
+if len(files_df) != 0:
+    print(files_df['files_path'].head(5).values)
 
 
 # In[ ]:
 
 
 
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+print("get df with only named .npy, not metadata(json, csv, etc)")
 
 
 # In[12]:
 
 
 #파일명이 npy 인것만 남김
-files_df = files_df[files_df['files_path'].map(lambda name : name.split('.')[-1] == "npy")]
+if len(files_df) != 0:
+    files_df = files_df[files_df['files_path'].map(lambda name : name.split('.')[-1] == "npy")]
 
 
 # In[13]:
 
 
-files_df['files_path'].values
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-print(files_df['files_path'].values)
+if len(files_df) != 0:
+    print(files_df['files_path'].head(5).values)
 
 
 # In[ ]:
@@ -252,7 +262,6 @@ from data_preprocessor import Npy_resize_preprocessor as NRP
 
 
 def change_dir_by_setting(file_path, shape_format, file_format):
-    #여기서 파일 이름에 따라서 추가 해서 넣어줘야 되는데? ㅈ 됬다. column에 넣으려니까 안되는데? => 기껏해야 list로 넣어야 됨.
     dirs = file_path.split('/')
     dirs[2] = dirs[2].replace('[(256,256),npy]', shape_format)
     dirs[-1] = dirs[-1].replace('.npy', file_format)
@@ -342,7 +351,8 @@ def read_change_save(file_path):
 # In[18]:
 
 
-files_df['files_path'].map(read_change_save)
+if len(files_df) != 0:
+    files_df['files_path'].map(read_change_save)
 
 
 # In[ ]:
@@ -357,6 +367,31 @@ files_df['files_path'].map(read_change_save)
 #train_df['files_path'].map(read_change_save)
 #valid_df['files_path'].map(read_change_save)
 #test_df['files_path'].map(read_change_save)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+preprocessing_finish_time = time.time()
+print("time for preprocess the task : ", preprocessing_finish_time - start_time)
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
@@ -424,44 +459,7 @@ tmp_df = pd.DataFrame(data=file_list, columns=['files_path'])
 # In[23]:
 
 
-tmp_df.head()
-
-
-# In[ ]:
-
-
-
-
-
-# In[24]:
-
-
-def upload_file(file):
-    #여기 업로드 하는 작업
-    minio_client.fput_object(
-        bucket_name = minio_bucket_name,
-        object_name = file,
-        file_path = file
-    )
-    return file
-
-
-# In[ ]:
-
-
-
-
-
-# In[25]:
-
-
-#tmp_df['files_path'].map(upload_file)
-
-
-# In[ ]:
-
-
-
+tmp_df.head(5)
 
 
 # In[ ]:
@@ -547,6 +545,25 @@ unzip.write_zip(files_base_dir = pv_mount_name+pv_count, name_to_save= name_to_s
 
 
 
+# In[ ]:
+
+
+compressing_finish_time = time.time()
+print("time for compress the folder : ", compressing_finish_time - preprocessing_finish_time)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
 # In[37]:
 
 
@@ -600,7 +617,20 @@ upload_from_to(name_to_save, name_to_upload)
 # In[ ]:
 
 
+upload_finish_time = time.time()
+print("time for uploading : ", upload_finish_time - compressing_finish_time)
 
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+print("time for all process : ", start_time - upload_finish_time)
 
 
 # In[ ]:

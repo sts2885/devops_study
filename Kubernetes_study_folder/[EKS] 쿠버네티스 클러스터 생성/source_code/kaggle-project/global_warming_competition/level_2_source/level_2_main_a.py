@@ -15,8 +15,6 @@
 
 # pipeline에서 environment 넣어준거라고 가정
 
-# # #모든 과정은 dataframe을 가지고 있다는 전제하에 진행함.#
-
 # In[ ]:
 
 
@@ -28,19 +26,21 @@
 # In[ ]:
 
 
-
+import time
+start_time = time.time()  # 시작 시간 저장
+print("start")
 
 
 # ### read os env variable
 
-# In[1]:
+# In[5]:
 
 
 from minio import Minio
 import os
 
 
-# In[2]:
+# In[6]:
 
 
 minio_url = os.environ["minio_url"]
@@ -57,7 +57,7 @@ competition_name = os.environ['competition_name']
 
 
 
-# In[3]:
+# In[7]:
 
 
 pv_mount_name = os.environ['pv_mount_name']
@@ -68,6 +68,12 @@ pv_count = os.environ['pv_count']
 
 
 
+
+
+# In[ ]:
+
+
+download_from = os.environ['download_from']
 
 
 # ### kaggle setting
@@ -104,23 +110,38 @@ competition_name = os.environ['competition_name']
 
 kaggle_json =  '{"username":"%s","key":"%s"}'%(kaggle_access_key, kaggle_secret_key)
 
-os.makedirs('~/.kaggle', exist_ok=True)
-
-with open('~/.kaggle/kaggle.json', 'w') as f:
-    f.write(kaggle_json)
+#os.makedirs('~/.kaggle', exist_ok=True)
+#with open('~/.kaggle/kaggle.json', 'w') as f:
+#    f.write(kaggle_json)
 
 #root 권한이면 써야됨.
-os.makedirs('/.kaggle')
-with open('/.kaggle/kaggle.json', 'w') as f:
+#os.makedirs('/.kaggle')
+#with open('/.kaggle/kaggle.json', 'w') as f:
+#    f.write(kaggle_json)
+    
+#os.makedirs('/home/ubuntu/.kaggle')
+#with open('/home/ubuntu/.kaggle/kaggle.json', 'w') as f:
+#    f.write(kaggle_json)
+
+os.makedirs('/root/.kaggle')
+with open('/root/.kaggle/kaggle.json', 'w') as f:
     f.write(kaggle_json)
     
-os.makedirs('/home/ubuntu/.kaggle')
-with open('/home/ubuntu/.kaggle/kaggle.json', 'w') as f:
-    f.write(kaggle_json)
-
 #os.makedirs('/home/jovyan/.kaggle')
 #with open('/home/jovyan/.kaggle/kaggle.json', 'w') as f:
 #    f.write(kaggle_json)
+
+
+# In[ ]:
+
+
+setting_finish_time = time.time()
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
@@ -188,15 +209,10 @@ from data_downloader import Data_downloader
 # In[15]:
 
 
-data_downloader = Data_downloader()
-
-data_downloader.set_info_when_download_from_s3(minio_url, minio_access_key, minio_secret_key, minio_region, minio_bucket_name, competition_name)
-
-
-# In[16]:
-
-
-data_downloader.download_from_s3(file_name_df=download_df)
+if download_from == 's3':
+    data_downloader = Data_downloader()
+    data_downloader.set_info_when_download_from_s3(minio_url, minio_access_key, minio_secret_key, minio_region, minio_bucket_name, competition_name)
+    data_downloader.download_from_s3(file_name_df=download_df)
 
 
 # In[ ]:
@@ -210,15 +226,48 @@ data_downloader.download_from_s3(file_name_df=download_df)
 # In[17]:
 
 
-#data_downloader = Data_downloader()
+if download_from == 'kaggle':
+    data_downloader = Data_downloader()
+    data_downloader.set_info_when_download_from_kaggle(competition_name)
+    data_downloader.download_all_from_kaggle(download_folder = "./global_warming")
+    import os
 
-#data_downloader.set_info_when_download_from_kaggle(competition_name)
+    folder_path = "./global_warming"
+
+    file_list = []
+
+    for path, subdirs, files in os.walk(folder_path):
+        for name in files:
+            file_list.append(os.path.join(path, name))
+    print('is downloaded_well?')
+    print(file_list)
+    print("@@@@@")
 
 
 # In[18]:
 
 
-#data_downloader.download_all_from_kaggle(download_folder = "test_test")
+download_finish_time = time.time()
+
+
+# In[ ]:
+
+
+print("download_time_cost : ", download_finish_time - setting_finish_time)
+
+
+# In[ ]:
+
+
+import os
+
+downloaded_zip_file = './global_warming/google-research-identify-contrails-reduce-global-warming.zip'
+
+if os.path.exists(downloaded_zip_file) :
+    file_size = os.path.getsize(downloaded_zip_file) 
+    print('File Size:', file_size/1024/1024/1024, 'GB')
+else:
+    print("no file")
 
 
 # In[ ]:
@@ -339,7 +388,19 @@ for i in range(1, num_pv+1):
 # In[27]:
 
 
-pv_list
+#pv_list
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+print("unzip start")
 
 
 # In[ ]:
@@ -351,7 +412,10 @@ pv_list
 # In[28]:
 
 
-unzip.extract_to_multiple_path('./global_warming/google-research-identify-contrails-reduce-global-warming.zip', pv_list, verbose=1)
+if len(pv_list) != 0:
+    unzip.extract_to_multiple_path('./global_warming/google-research-identify-contrails-reduce-global-warming.zip', pv_list)
+else:
+    print("pv_list over 0", len(pv_list))
 
 
 # In[ ]:
@@ -363,7 +427,31 @@ unzip.extract_to_multiple_path('./global_warming/google-research-identify-contra
 # In[ ]:
 
 
+unzip_finish_time = time.time()
 
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+print("unzip_time_cost : ", unzip_finish_time - download_finish_time)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+print("total_time_cost_for_main_a : ", unzip_finish_time - start_time)  # 현재시각 - 시작시간 = 실행 시간
 
 
 # In[ ]:

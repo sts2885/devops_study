@@ -180,10 +180,10 @@ data "http" "myip" {
     url = "http://ipv4.icanhazip.com"
 }
 
-output "my_ip" {
-    value = "${chomp(data.http.myip.body)}/32"
-    description = "my ip"
-}
+#output "my_ip" {
+#    value = "${chomp(data.http.myip.body)}/32"
+#    description = "my ip"
+#}
 
 
 

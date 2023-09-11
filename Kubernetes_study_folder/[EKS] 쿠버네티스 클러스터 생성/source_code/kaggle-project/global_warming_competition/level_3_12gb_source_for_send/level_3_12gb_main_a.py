@@ -12,19 +12,21 @@
 # In[2]:
 
 
-
+import time
+start_time = time.time()  # 시작 시간 저장
+print("start")
 
 
 # ### read os env variable
 
-# In[3]:
+# In[2]:
 
 
 from minio import Minio
 import os
 
 
-# In[4]:
+# In[3]:
 
 
 minio_url = os.environ["minio_url"]
@@ -41,7 +43,7 @@ competition_name = os.environ['competition_name']
 
 
 
-# In[5]:
+# In[ ]:
 
 
 pv_mount_name = os.environ['pv_mount_name']
@@ -54,7 +56,7 @@ pv_count = os.environ['pv_count']
 
 
 
-# In[6]:
+# In[ ]:
 
 
 download_from = os.environ['download_from']
@@ -62,7 +64,7 @@ download_from = os.environ['download_from']
 
 # ### kaggle setting
 
-# In[7]:
+# In[ ]:
 
 
 kaggle_access_key = os.environ["kaggle_access_key"]
@@ -75,7 +77,7 @@ kaggle_secret_key = os.environ["kaggle_secret_key"]
 
 
 
-# In[8]:
+# In[ ]:
 
 
 competition_name = os.environ['competition_name']
@@ -87,7 +89,7 @@ competition_name = os.environ['competition_name']
 
 
 
-# In[9]:
+# In[ ]:
 
 
 #필요한 위치에 정보 입력
@@ -116,6 +118,18 @@ with open('/root/.kaggle/kaggle.json', 'w') as f:
 #    f.write(kaggle_json)
 
 
+# In[3]:
+
+
+setting_finish_time = time.time()
+
+
+# In[ ]:
+
+
+
+
+
 # In[ ]:
 
 
@@ -130,13 +144,13 @@ with open('/root/.kaggle/kaggle.json', 'w') as f:
 
 
 
-# In[10]:
+# In[ ]:
 
 
 import pandas as pd
 
 
-# In[11]:
+# In[ ]:
 
 
 from_file_to_file = [['google-research-identify-contrails-reduce-global-warming.zip', 'global_warming/google-research-identify-contrails-reduce-global-warming.zip']]
@@ -152,7 +166,7 @@ download_df = pd.DataFrame(data=from_file_to_file, columns=columns)
 
 
 
-# In[12]:
+# In[ ]:
 
 
 download_df
@@ -164,7 +178,19 @@ download_df
 
 
 
-# In[13]:
+# In[ ]:
+
+
+print("download_start")
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
 
 
 from data_downloader import Data_downloader
@@ -172,7 +198,7 @@ from data_downloader import Data_downloader
 
 # # download from s3
 
-# In[14]:
+# In[ ]:
 
 
 if download_from == 's3':
@@ -189,7 +215,7 @@ if download_from == 's3':
 
 # ### download from kaggle 실전에서는 이걸 써야
 
-# In[18]:
+# In[ ]:
 
 
 if download_from == 'kaggle':
@@ -210,10 +236,30 @@ if download_from == 'kaggle':
     print("@@@@@")
 
 
-# In[ ]:
+# In[4]:
 
 
+download_finish_time = time.time()
 
+
+# In[5]:
+
+
+print("download_time_cost : ", download_finish_time - setting_finish_time)
+
+
+# In[1]:
+
+
+import os
+
+downloaded_zip_file = './global_warming/google-research-identify-contrails-reduce-global-warming.zip'
+
+if os.path.exists(downloaded_zip_file) :
+    file_size = os.path.getsize(downloaded_zip_file) 
+    print('File Size:', file_size/1024/1024/1024, 'GB')
+else:
+    print("no file")
 
 
 # In[ ]:
@@ -224,19 +270,19 @@ if download_from == 'kaggle':
 
 # # extract data to specific directory
 
-# In[18]:
+# In[ ]:
 
 
 from unzip_to_pv_manager import Unzip_to_pv_manager
 
 
-# In[19]:
+# In[ ]:
 
 
 unzip = Unzip_to_pv_manager()
 
 
-# In[20]:
+# In[ ]:
 
 
 zip_file_extracted_file = [['global_warming/google-research-identify-contrails-reduce-global-warming.zip', 'global_warming/[(256,256),npy]/google-research-identify-contrails-reduce-global-warming']]
@@ -254,13 +300,13 @@ zip_file_extracted_file = [['global_warming/google-research-identify-contrails-r
 
 
 
-# In[21]:
+# In[ ]:
 
 
 import os
 
 
-# In[22]:
+# In[ ]:
 
 
 num_pv = int(pv_count)
@@ -272,7 +318,7 @@ num_pv = int(pv_count)
 
 
 
-# In[23]:
+# In[ ]:
 
 
 pv_dir_list = [pv_mount_name+str(count) for count in range(1, num_pv+1)]
@@ -286,7 +332,7 @@ pv_dir_list = [pv_mount_name+str(count) for count in range(1, num_pv+1)]
 
 # jupyter에서 테스트 하려고 둔 거고 실제로는 필요없음 mount하면서 dir 생성도 하기 때문에
 
-# In[24]:
+# In[ ]:
 
 
 import os
@@ -316,7 +362,7 @@ for pv_name in pv_dir_list:
 
 
 
-# In[25]:
+# In[ ]:
 
 
 pv_list = []
@@ -331,7 +377,7 @@ for i in range(1, num_pv+1):
 
 
 
-# In[26]:
+# In[ ]:
 
 
 #pv_list
@@ -343,7 +389,19 @@ for i in range(1, num_pv+1):
 
 
 
-# In[27]:
+# In[6]:
+
+
+print("unzip start")
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
 
 
 if len(pv_list) != 0:
@@ -352,22 +410,34 @@ else:
     print("pv_list over 0", len(pv_list))
 
 
-# In[ ]:
+# In[7]:
 
 
-
-
-
-# In[ ]:
-
-
-
+unzip_finish_time = time.time()
 
 
 # In[ ]:
 
 
 
+
+
+# In[8]:
+
+
+print("unzip_time_cost : ", unzip_finish_time - download_finish_time)
+
+
+# In[ ]:
+
+
+
+
+
+# In[9]:
+
+
+print("total_time_cost_for_main_a : ", unzip_finish_time - start_time)  # 현재시각 - 시작시간 = 실행 시간
 
 
 # In[ ]:
