@@ -1,0 +1,97 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"Role","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"ml-pipeline","app.kubernetes.io/name":"kubeflow-pipelines","application-crd-id":"kubeflow-pipelines"},"name":"pipeline-runner","namespace":"kubeflow"},"rules":[{"apiGroups":[""],"resources":["secrets"],"verbs":["get"]},{"apiGroups":[""],"resources":["configmaps"],"verbs":["get","watch","list"]},{"apiGroups":[""],"resources":["persistentvolumes","persistentvolumeclaims"],"verbs":["*"]},{"apiGroups":["snapshot.storage.k8s.io"],"resources":["volumesnapshots"],"verbs":["create","delete","get"]},{"apiGroups":["argoproj.io"],"resources":["workflows"],"verbs":["get","list","watch","update","patch"]},{"apiGroups":[""],"resources":["pods","pods/exec","pods/log","services"],"verbs":["*"]},{"apiGroups":["","apps","extensions"],"resources":["deployments","replicasets"],"verbs":["*"]},{"apiGroups":["kubeflow.org"],"resources":["*"],"verbs":["*"]},{"apiGroups":["batch"],"resources":["jobs"],"verbs":["*"]},{"apiGroups":["machinelearning.seldon.io"],"resources":["seldondeployments"],"verbs":["*"]}]}
+  creationTimestamp: "2023-07-24T12:47:54Z"
+  labels:
+    app.kubernetes.io/component: ml-pipeline
+    app.kubernetes.io/name: kubeflow-pipelines
+    application-crd-id: kubeflow-pipelines
+  name: pipeline-runner
+  namespace: kubeflow
+  resourceVersion: "3359"
+  uid: 9e4aac62-8726-43a3-b4cf-c6f7a3e6ae81
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumes
+  - persistentvolumeclaims
+  verbs:
+  - '*'
+- apiGroups:
+  - snapshot.storage.k8s.io
+  resources:
+  - volumesnapshots
+  verbs:
+  - create
+  - delete
+  - get
+- apiGroups:
+  - argoproj.io
+  resources:
+  - workflows
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/exec
+  - pods/log
+  - services
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  - apps
+  - extensions
+  resources:
+  - deployments
+  - replicasets
+  verbs:
+  - '*'
+- apiGroups:
+  - kubeflow.org
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - '*'
+- apiGroups:
+  - machinelearning.seldon.io
+  resources:
+  - seldondeployments
+  verbs:
+  - '*'
+- apiGroups:
+  - sparkoperator.k8s.io
+  resources:
+  - sparkapplications
+  verbs:
+  - '*'

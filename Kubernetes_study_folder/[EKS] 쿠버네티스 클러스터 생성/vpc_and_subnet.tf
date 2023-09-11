@@ -68,7 +68,9 @@ resource "aws_subnet" "public_subnet_c" {
     #cidr_block = "10.1.1.0/24"
     cidr_block = "172.31.16.0/20"
     availability_zone = "us-east-1c"
-
+    #az가 같아야 pv mount가능
+    #availability_zone = "us-east-1a"
+    
     map_public_ip_on_launch = true
 
     tags = {
@@ -138,6 +140,8 @@ resource "aws_subnet" "public_subnet_eks_pods_c" {
     cidr_block = "100.64.32.0/19"
 
     availability_zone = "us-east-1c"
+    #az가 같아야 pv mount가능
+    #availability_zone = "us-east-1a"
 
     map_public_ip_on_launch = true
 

@@ -18,31 +18,6 @@ echo BEGIN
 
 
 
-
-#aws cli 설치
-sudo apt update
-sudo apt install -y awscli 
-
-#eks 설정 파일 연결(aws cli 설정이 있어야 함 .aws)
-aws eks --region us-east-1 update-kubeconfig --name eks-cluster
-
-#kubectl client 설치
-curl -LO https://dl.k8s.io/release/v1.23.6/bin/linux/amd64/kubectl
-chmod +x kubectl
-sudo mv kubectl /usr/local/bin/
-export PATH=$PATH:/usr/local/bin/
-kubectl version
-
-
-#node => secondary subnet에 배치시키기
-#node 숫자 변동은 설치 다 하고 마지막에 terraform 변동만 하면 됨
-kubectl create -f ./k8s-manifests/eni-configs/.
-kubectl set env daemonset aws-node -n kube-system AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true
-kubectl set env daemonset aws-node -n kube-system ENI_CONFIG_LABEL_DEF=failure-domain.beta.kubernetes.io/zone
-
-
-
-
 ##alb controller 설치
 #eksctl
 curl --location \
@@ -63,6 +38,7 @@ aws iam create-policy \
 
 eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=eks-cluster --approve
 
+sleep 5
 
 echo "detach role for lb controller iam service account and wait 5 sec"
 #이전에 쓴 eksctl iam service account 지우기
@@ -78,17 +54,27 @@ echo "delete lb controller iam service account and wait5 sec"
 eksctl delete iamserviceaccount \
 --cluster eks-cluster \
 --namespace kube-system \
---name aws-load-balancer-controller
+--name aws-load-balancer-controller \
+--region us-east-1
 
-sleep 5
+
+sleep 10
 
 #aws lb controller 설치
 #https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/aws-load-balancer-controller.html
 
+
+#기존에 eksctl get iamserviceaccount를 통해 기존버전이 있으면 지우고 생성
+#시작 전에 cloud formation에서 iamserviceaccount 손으로 삭제 하고 시작해야됨...
+#https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/stackinfo?filteringText=&filteringStatus=active&viewNested=true&stackId=arn%3Aaws%3Acloudformation%3Aus-east-1%3A222170749288%3Astack%2Feksctl-eks-cluster-addon-iamserviceaccount-kube-system-aws-load-balancer-controller%2F82a68a90-1309-11ee-9d02-121d84b62ce9
+#이거 생성한 세션에서 삭제 안하면 delete failed 뜨고 안됨.
+
+#iam 들어가서 arn 찾아 놔야 함
 eksctl create iamserviceaccount \
 --cluster=eks-cluster \
 --namespace=kube-system \
 --name=aws-load-balancer-controller \
+--region us-east-1 \
 --role-name AmazonEKSLoadBalancerControllerRole \
 --attach-policy-arn=arn:aws:iam::<iam_id>:policy/AWSLoadBalancerControllerIAMPolicy \
 --override-existing-serviceaccounts \
@@ -111,13 +97,16 @@ aws iam attach-role-policy \
 
 sleep 5
 
-
-#certmanager는 kubeflow에 있는 거로 쓸 예정
+#lb가 cert manager가 있어야 돌아감 그래서 kubeflow 안에 있는 거라도 꼭 깔아야 함.
+#깔고 재시작 해야 됨... 그럴꺼면 그냥 여기서 한번 깔아보자
+#깔고 안되면 kubeflow 깐 이후 재시작 해야지 뭐... 설치 순서르 ㄹ바꾸던...
 #https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/aws-load-balancer-controller.html
 #certmanager, albcontroller.yaml(v2_4_7_full.yaml) 여기 대로 써라
-#kubectl apply \
-#    --validate=false \
-#    -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+kubectl apply \
+    --validate=false \
+    -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+
+sleep 20
 
 #가끔 iam service account 설치 되도  한번에 이거 설치 안될때 있음
 curl -Lo v2_4_7_full.yaml https://github.com/kubernetes-sigs/aws-load-balancer-controller/releases/download/v2.4.7/v2_4_7_full.yaml
@@ -147,9 +136,10 @@ echo "delete ebs csi driver iam service account and wait5 sec"
 eksctl delete iamserviceaccount \
 --cluster eks-cluster \
 --namespace kube-system \
---name ebs-csi-controller-sa
+--name ebs-csi-controller-sa \
+--region us-east-1
 
-sleep 5
+sleep 10
 
 ###ebs csi
 
@@ -157,6 +147,7 @@ eksctl create iamserviceaccount \
   --name ebs-csi-controller-sa \
   --namespace kube-system \
   --cluster eks-cluster \
+  --region us-east-1 \
   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
   --approve \
   --role-only \
@@ -164,7 +155,11 @@ eksctl create iamserviceaccount \
 
 sleep 5
 
-eksctl create addon --name aws-ebs-csi-driver --cluster eks-cluster --service-account-role-arn arn:aws:iam::<iam_id>:role/AmazonEKS_EBS_CSI_DriverRole --force
+eksctl create addon \
+--name aws-ebs-csi-driver \
+--cluster eks-cluster \
+--region us-east-1 \
+--service-account-role-arn arn:aws:iam::<iam_id>:role/AmazonEKS_EBS_CSI_DriverRole --force
 
 sleep 5
 
@@ -187,9 +182,10 @@ echo "delete efs csi driver iam service account and wait5 sec"
 eksctl delete iamserviceaccount \
 --cluster eks-cluster \
 --namespace kube-system \
---name efs-csi-controller-sa
+--name efs-csi-controller-sa \
+--region us-east-1
 
-sleep 5
+sleep 10
 
 
 curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-efs-csi-driver/master/docs/iam-policy-example.json
@@ -204,10 +200,13 @@ eksctl create iamserviceaccount \
     --cluster eks-cluster \
     --namespace kube-system \
     --name efs-csi-controller-sa \
+    --region us-east-1 \
     --attach-policy-arn arn:aws:iam::<iam_id>:policy/AmazonEKS_EFS_CSI_Driver_Policy \
     --approve \
-    --region us-east-1\
+    --region us-east-1 \
     --role-name AmazonEKS_EFS_CSI_DriverRole
+
+
 
 
 #https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/efs-csi.html
@@ -238,17 +237,80 @@ kubectl get pods -n kube-system | grep efs-csi-control
 curl --silent --location "https://github.com/kubernetes-sigs/kustomize/releases/download/v3.2.0/kustomize_3.2.0_linux_amd64" -o /tmp/kustomize
 sudo chmod +x /tmp/kustomize && sudo mv -v /tmp/kustomize /usr/local/bin
 
+#여기서 부터는 직접 입력해야 될듯 환경변수도 제대로 등록이 안되서, 싫으면 /etc/profile에 직접 append하거나
 #버전을 eks 버전과 호환되는 버전을 검색후 (eks kubeflow compatible) 맞는 버전 기입
 export KUBEFLOW_RELEASE_VERSION=v1.7.0
 #이게 aws cli 버전이 아니라 kubeflow 깃허브에 release 버전 이름임
 export AWS_RELEASE_VERSION=v1.7.0-aws-b1.0.2
-git clone GitHub - awslabs/kubeflow-manifests: KubeFlow on AWS  && cd kubeflow-manifests
+git clone https://github.com/awslabs/kubeflow-manifests.git && cd kubeflow-manifests
 git checkout ${AWS_RELEASE_VERSION}
-git clone --branch ${KUBEFLOW_RELEASE_VERSION} GitHub - kubeflow/manifests: A repository for Kustomize manifests  upstream
+git clone --branch ${KUBEFLOW_RELEASE_VERSION} https://github.com/kubeflow/manifests.git upstream
 
-while ! kustomize build deployments/vanilla | kubectl apply -f -; do echo "Retrying to apply resources"; sleep 30; done
+#노드 0 일때는 리소스 부족으로 이거 설치 안되는 듯 영원히 루프 도네
+#2트째일떄 부터 아래 명령어 써라는 할 수 있는데
+#문제는 jupyter reset이 아니면 boot script를 terraform에서 
+#재시작 하지는 않음
+# 노드 -> 1 -> 0 -> 1로 하자.
+
+#이게 이전 설정들이 제대로 안되면 (lb controller 파드가 안켜진다거나) kubeflow 설치가 제대로 안됨. 재설치 하기도 힘들고
+
+#자꾸 한번에 설치 안되면 kubeflow는 손으로 설치 할 수 밖에 없어...
+
+#jupyter 생성을 위해서 secure cookie 해제
+cp -rf /home/ubuntu/k8s-manifests/secure_false_jupyter.yaml /home/ubuntu/kubeflow-manifests/upstream/apps/jupyter/jupyter-web-app/upstream/base/deployment.yaml
+
+kubectl apply -f /home/ubuntu/k8s-manifests/pipeline_token.yaml
+
+#while ! kustomize build deployments/vanilla | kubectl apply -f -; do echo "Retrying to apply resources"; sleep 30; done
+
+while ! kustomize build /home/ubuntu/kubeflow-manifests/deployments/vanilla | kubectl apply -f -; do echo "Retrying to apply resources"; sleep 30; done
+
+
+
+#이건 결국 실패함
+#kubeflow는 secure cookie라는 걸 써서 
+#웹사이트 인증서가 없으면 http로 접근을 못하게 막음
+#node port는 왠지 모르겠음 그냥 안됨
+#그래서 그냥 무한 루프로 port forward하게 뒀음.
+#한번 켜서 영원히 쓸 수 있게 되는 날이 오면 
+#그때를 위해 alb 손으로 연결하는 법을 알아냄
+#설치하면 현재는 istio-ingressgateway 가 cluster ip로 되어 있음
+#kubeflow 홈페이지 들어가니까 해결책이 있었다.
+#https://www.kubeflow.org/docs/distributions/ibm/deploy/authentication/
+#지금은 스케일이 작아서 node port만 써도 되는데 커지면 lb가 들어가야 겠지
+#kubectl patch svc istio-ingressgateway -n istio-system -p '{"spec":{"type":"ClusterIP"}}'
+#kubectl patch svc istio-ingressgateway -n istio-system -p '{"spec":{"type":"LoadBalancer"}}'
+#kubectl patch svc istio-ingressgateway -n istio-system -p '{"spec":{"type":"NodePort"}}'
+
 
 #In the login screen, use the default email (user@example.com) and password (12341234)
 #kubectl port-forward --address 0.0.0.0 svc/istio-ingressgateway -n istio-system 8080:80
+#nohup kubectl port-forward --address 0.0.0.0 svc/istio-ingressgateway -n istio-system 8080:80 &
+#끄려면 프로세스 id 찾아내서 ps -e, kill 로 종료시키면 됨.
+
+
+#service 출력시키자
+#kubectl get svc -n istio-system | grep istio-ingressgateway
+
+#마지막에 노드 출력 시켜서 ip 보고 node port 들어가자
+#kubectl get node -o wide
+
+#진짜 개고생 했는데 돌고 돌아서 이거 쓰네 ㅡㅡ
+#ALB연결하는 방법은 정확히 알았는데, terraform, ad-hoc script로 자동으로 연결시키는게 너무 힘들어서 그냥 돌고 돌아 무한 반복 시키는 코드로 선회했다.
+echo """
+#!/bin/bash
+while true; do kubectl port-forward --address 0.0.0.0 svc/istio-ingressgateway -n istio-system 8080:80; done
+""" | tee /home/ubuntu/port_forward.sh
+
+
+#kubectl top node, kubectl top pod 명령어 수행
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+
+sleep 120
+
+#this script will be run at .tf file. 
+#nohup bash /home/ubuntu/port_forward.sh 0<&- &> /home/ubuntu/kubeflow.log &
+
 
 echo "kubernetes_ready"

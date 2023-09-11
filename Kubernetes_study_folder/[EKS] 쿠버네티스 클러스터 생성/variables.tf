@@ -9,7 +9,10 @@ variable "cluster_name" {
 }
 
 locals {
+    #node_size will be deprecated in future
     node_size = yamldecode(file("node_size.yml"))#["max_size"]
+    node_size_for_group_1 = yamldecode(file("node_size_for_group_1.yml"))
+    node_size_for_group_2 = yamldecode(file("node_size_for_group_2.yml"))
 }
 
 /*

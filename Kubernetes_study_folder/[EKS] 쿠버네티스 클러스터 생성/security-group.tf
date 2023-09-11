@@ -40,34 +40,69 @@ resource "aws_security_group" "eks-cluster-sg" {
     tags = {
         Name = "eks-cluster-sg"
     }
+
+    #내부 통신
+    ingress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = [
+            aws_vpc.kube_vpc.cidr_block,
+            aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block,
+            "${chomp(data.http.myip.body)}/32",
+            "0.0.0.0/0"
+        ]
+        #["0.0.0.0/0"]#
+    }
+
+    #NodePort를 위해
+    ingress {
+        from_port = 30000
+        to_port = 32767
+        protocol = "tcp"
+        cidr_blocks = [
+            "0.0.0.0/0"
+        ]
+    }
+
+    #grafana
+    ingress {
+        from_port = var.grafana_port
+        to_port = var.grafana_port
+        protocol = "tcp"
+        cidr_blocks = [
+            "0.0.0.0/0"
+        ]
+    }
+
+    #prometheus
+    ingress {
+        from_port = var.prometheus_port
+        to_port = var.prometheus_port
+        protocol = "tcp"
+        cidr_blocks = [
+            "0.0.0.0/0"
+        ]
+    }
+
+    #node exporter
+    ingress {
+        from_port = var.node_exporter_port
+        to_port = var.node_exporter_port
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+
+
+    egress {
+        from_port = "0"
+        to_port = "0"
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
 }
-
-resource "aws_security_group_rule" "eks-cluster-sg-ingress" {
-    security_group_id = aws_security_group.eks-cluster-sg.id
-    type = "ingress"
-    description = "ingress security_group_rule for eks-cluster"
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = [
-        aws_vpc.kube_vpc.cidr_block,
-        aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block,
-        "${chomp(data.http.myip.body)}/32"
-    ]
-    #["0.0.0.0/0"]#
-}
-
-resource "aws_security_group_rule" "eks-cluster-sg-egress" {
-
-    security_group_id = aws_security_group.eks-cluster-sg.id
-    type = "egress"
-    description = "egress secutiry_group_rule for eks-cluster"
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-}
-
 
 #EKS PODs sg
 resource "aws_security_group" "eks-pods-sg"{
@@ -78,44 +113,77 @@ resource "aws_security_group" "eks-pods-sg"{
     tags = {
         Name = "eks-pods-sg"
     }
+
+    #내부 통신
+    ingress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = [
+            aws_vpc.kube_vpc.cidr_block,
+            aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block,
+            "${chomp(data.http.myip.body)}/32",
+            "0.0.0.0/0"
+        ]
+    }
+
+
+    #NodePort를 위해
+    ingress {
+        from_port = 30000
+        to_port = 32767
+        protocol = "tcp"
+        cidr_blocks = [
+            "0.0.0.0/0"
+        ]
+    }
+
+    #grafana
+    ingress {
+        from_port = var.grafana_port
+        to_port = var.grafana_port
+        protocol = "tcp"
+        cidr_blocks = [
+            "0.0.0.0/0"
+        ]
+    }
+
+    #prometheus
+    ingress {
+        from_port = var.prometheus_port
+        to_port = var.prometheus_port
+        protocol = "tcp"
+        cidr_blocks = [
+            "0.0.0.0/0"
+        ]
+    }
+
+    #node exporter
+    ingress {
+        from_port = var.node_exporter_port
+        to_port = var.node_exporter_port
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+
+    egress {
+        from_port = "0"
+        to_port = "0"
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
 }
-
-resource "aws_security_group_rule" "eks-pods-sg-ingress" {
-    security_group_id = aws_security_group.eks-pods-sg.id
-    type = "ingress"
-    description = "ingress sg rule for eks-pods"
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = [
-        aws_vpc.kube_vpc.cidr_block,
-        aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block,
-        "${chomp(data.http.myip.body)}/32"
-    ]
-}
-
-resource "aws_security_group_rule" "eks-pods-sg-egress" {
-    security_group_id = aws_security_group.eks-pods-sg.id
-    type = "egress"
-    description = "egress sg rule for eks pods"
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-}
-
-
-
-
 
 data "http" "myip" {
     url = "http://ipv4.icanhazip.com"
 }
 
-output "my_ip" {
-    value = "${chomp(data.http.myip.body)}/32"
-    description = "my ip"
-}
+#output "my_ip" {
+#    value = "${chomp(data.http.myip.body)}/32"
+#    description = "my ip"
+#}
 
 
 
@@ -131,6 +199,41 @@ resource "aws_security_group" "bastion_sg" {
         #["${chomp(data.http.myip.body)}/32"]
     }
 
+    ingress {
+        from_port = var.access_port
+        to_port = var.access_port
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port = var.grafana_port
+        to_port = var.grafana_port
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port = var.prometheus_port
+        to_port = var.prometheus_port
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port = var.minio_port
+        to_port = var.minio_port
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port = var.collector_port
+        to_port = var.collector_port
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
     egress {
         from_port = "0"
         to_port = "0"
@@ -144,15 +247,39 @@ resource "aws_security_group" "bastion_sg" {
 }
 
 
-#그라파나 배치 시킬것도 아니고 걍 22번만 뚫자.
+
 variable "ssh_port" {
     type = number
     default = 22
 }
 
+variable "access_port" {
+    type = number
+    default = 8080
+}
 
+variable "grafana_port" {
+    type = number
+    default = 3000
+}
 
+variable "prometheus_port" {
+    type = number
+    default = 9090
+}
 
+variable "node_exporter_port" {
+    type = number
+    default = 9100
+}
 
+variable "minio_port" {
+    type = number
+    default = 9000
+}
 
+variable "collector_port" {
+    type = number
+    default = 8889
+}
 
