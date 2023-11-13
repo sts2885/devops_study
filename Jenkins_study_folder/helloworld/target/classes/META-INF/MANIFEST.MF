@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Built-By: escs3
-Build-Jdk: 21.0.1
+Build-Jdk-Spec: 21
+Main-Class: com.HelloWorld.App
 Created-By: Maven Integration for Eclipse
 
