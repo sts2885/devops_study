@@ -1,0 +1,26 @@
+#apiVersion: apiextensions.k8s.io/v1beta1
+#이게 옛날 버전이라고 1.22에 사라졌다고 함.
+#https://stackoverflow.com/questions/69054622/unable-to-install-crds-in-kubernetes-kind
+#v1beta1이 아니라 그냥 v1으로 하면 되는 듯
+#그리고 apiVersion이 v1beta1에서 v1으로 바뀌면서
+#version -> versions로 syntax가 바뀌게됨
+#=> 근데 이때부터는 안에 schema를 정의해야 한다고함
+#=> 이떄와는 시간대가 달라서 터진 에러인가?
+#=> ensure install 나온거 보니까 eniconfig.yaml에 데이터가 없어서 그런거 같기도 하고
+apiVersion: apiextensions.k8s.io/v1alpha1
+#v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: eniconfigs.crd.k8s.amazonaws.com
+spec:
+  scope: Cluster
+  group: crd.k8s.amazonaws.com
+  #versions:
+  #  - name: v1alpha1
+  #version: v1
+  #v1alpha1
+  version: v1alpha1
+  names:
+    plural: eniconfigs
+    singular: eniconfig
+    kind: ENIConfig
