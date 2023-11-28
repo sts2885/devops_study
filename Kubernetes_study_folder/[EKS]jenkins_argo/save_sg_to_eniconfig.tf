@@ -16,9 +16,9 @@ data "template_file" "eniconfig" {
     template = "${file("${path.module}/k8s-manifests/eni-configs/eniconfig.yaml.tftpl")}"
     vars = {
             sg_a = "${aws_security_group.eks-pods-sg.id}",
-            subnet_a = "${aws_subnet.public_subnet_eks_pods_a.id}",
+            subnet_a = "${aws_subnet.private_subnet_eks_pods_a.id}",
             sg_c = "${aws_security_group.eks-pods-sg.id}",
-            subnet_c = "${aws_subnet.public_subnet_eks_pods_c.id}"
+            subnet_c = "${aws_subnet.private_subnet_eks_pods_c.id}"
         }
 }
 

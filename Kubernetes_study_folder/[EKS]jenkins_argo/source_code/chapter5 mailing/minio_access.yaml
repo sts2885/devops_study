@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: minioaccess
-  namespace: kubeflow-user-example-com
-data:
-  AWS_ACCESS_KEY_ID: keyekyekeykeyukey
-  AWS_SECRET_ACCESS_KEY : secetrerecetec
-

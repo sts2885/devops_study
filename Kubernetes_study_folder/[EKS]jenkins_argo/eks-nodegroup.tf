@@ -43,9 +43,9 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
     #Arm and non-accelerated Amazon EKS AMIs don't support the g3, g4, inf, and p families.
     #Accelerated Amazon EKS AMIs don't support the a, c, hpc, m, and t families.
     
-    instance_types = ["t3a.xlarge"]#["m5.xlarge"]#["t3a.large"]#
+    instance_types = ["t3a.medium"] #["t3a.xlarge"]#이게 2개가 kubeflow 적정 용량
     
-    capacity_type = "ON_DEMAND"#"SPOT"
+    capacity_type = "SPOT" #"ON_DEMAND"# 오랜만에 스팟인스턴스 테스트도 해보자.
     disk_size = 50
     
     labels = {

@@ -3,8 +3,8 @@
 #vpc 생성
 resource "aws_vpc" "kube_vpc" {
     #cidr_block = "10.1.0.0/16"
-    #강의에서 쓴 대역을 따라감
-    cidr_block = "172.31.0.0/16"
+    #강의에서 쓴 대역을 따라감 => 이제좀 익숙하니까 작은걸로 바꾸자.
+    cidr_block = "172.31.50.0/24"
 
     tags = {
         Name = "kube_vpc"
@@ -25,7 +25,6 @@ resource "aws_vpc_ipv4_cidr_block_association" "secondary_cidr" {
     #}
 }
 
-
 #public subnet 생성
 resource "aws_subnet" "public_subnet_a" {
 
@@ -34,12 +33,76 @@ resource "aws_subnet" "public_subnet_a" {
     ]
 
     vpc_id = aws_vpc.kube_vpc.id
-    #cidr_block = "10.1.0.0/24"
-    cidr_block = "172.31.0.0/20"
+    cidr_block = "172.31.50.0/26"
 
     availability_zone = "us-east-1a"
 
     map_public_ip_on_launch = true
+
+    tags = {
+        Name = "public_subnet_a"
+        #여기에 lb 생성 태그 들어가야 되는 거 아니냐?
+
+        #eks 클러스터, 노드 자동 생성에 필요한 태그 <- 그러니까 여기에는 사실상 필요없긴 함.
+        "kubernetes.io/cluster/eks-cluster" = "shared"
+        #lb  controller service account를 생성하기 위한 태그
+        "kubernetes.io/role/elb" = 1
+    }
+    #하위 항목에 다 달린다는게 인스턴스나 igw나 nat 같은거 말하는건가?
+    tags_all = {
+        Name = "public_subnet_a"
+        #eks 클러스터, 노드 자동생성에 필요한 태그
+        "kubernetes.io/cluster/eks-cluster" = "shared"
+        #lb controller service account를 생성하기 위한 태그
+        "kubernetes.io/role/elb" = 1
+    }
+}
+
+resource "aws_subnet" "public_subnet_c" {
+
+    depends_on = [
+        aws_vpc.kube_vpc
+    ]
+
+    vpc_id = aws_vpc.kube_vpc.id
+    cidr_block = "172.31.50.64/26"
+
+    availability_zone = "us-east-1c"
+
+    map_public_ip_on_launch = true
+
+    tags = {
+        Name = "public_subnet_a"
+        #eks 클러스터, 노드 자동생성에 필요한 태그
+        "kubernetes.io/cluster/eks-cluster" = "shared"
+        #lb controller service account를 생성하기 위한 태그
+        "kubernetes.io/role/elb" = 1
+    }
+
+    tags_all = {
+        Name = "public_subnet_a"
+        #eks 클러스터, 노드 자동생성에 필요한 태그
+        "kubernetes.io/cluster/eks-cluster" = "shared"
+        #lb controller service account를 생성하기 위한 태그
+        "kubernetes.io/role/elb" = 1
+    }
+}
+
+
+#worker를 private에, private subnet 생성
+resource "aws_subnet" "private_subnet_a" {
+
+    depends_on = [
+        aws_vpc.kube_vpc
+    ]
+
+    vpc_id = aws_vpc.kube_vpc.id
+    #cidr_block = "10.1.0.0/24"
+    cidr_block = "172.31.50.128/26"
+
+    availability_zone = "us-east-1a"
+
+    #map_public_ip_on_launch = true
 
     tags = {
         Name = "public_subnet_a"
@@ -59,22 +122,22 @@ resource "aws_subnet" "public_subnet_a" {
     }
 }
 
-resource "aws_subnet" "public_subnet_c" {
+resource "aws_subnet" "private_subnet_c" {
     depends_on = [
         aws_vpc.kube_vpc
     ]
 
     vpc_id = aws_vpc.kube_vpc.id
     #cidr_block = "10.1.1.0/24"
-    cidr_block = "172.31.16.0/20"
+    cidr_block = "172.31.50.192/26"
     availability_zone = "us-east-1c"
-    #az가 같아야 pv mount가능
+    #az가 같아야 pv mount가능 <= 이제 필요없으니까 돌아간다.
     #availability_zone = "us-east-1a"
     
-    map_public_ip_on_launch = true
+    #map_public_ip_on_launch = true
 
     tags = {
-        Name = "public_subnet_c"
+        Name = "private_subnet_c"
         #eks 클러스터, 노드 자동생성에 필요한 태그
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
@@ -90,7 +153,7 @@ resource "aws_subnet" "public_subnet_c" {
     }
 }
 
-resource "aws_subnet" "public_subnet_eks_pods_a" {
+resource "aws_subnet" "private_subnet_eks_pods_a" {
     depends_on = [
         aws_vpc.kube_vpc,
         aws_vpc_ipv4_cidr_block_association.secondary_cidr
@@ -108,7 +171,7 @@ resource "aws_subnet" "public_subnet_eks_pods_a" {
     map_public_ip_on_launch = true
 
     tags = {
-        Name = "public_subnet_eks_pods_a"
+        Name = "private_subnet_eks_pods_a"
         #eks 클러스터, 노드 자동생성에 필요한 태그
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
@@ -116,7 +179,7 @@ resource "aws_subnet" "public_subnet_eks_pods_a" {
     }
 
     tags_all = {
-        Name = "public_subnet_eks_pods_a"        
+        Name = "private_subnet_eks_pods_a"        
         #eks 클러스터, 노드 자동생성에 필요한 태그
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
@@ -124,7 +187,7 @@ resource "aws_subnet" "public_subnet_eks_pods_a" {
     }
 }
 
-resource "aws_subnet" "public_subnet_eks_pods_c" {
+resource "aws_subnet" "private_subnet_eks_pods_c" {
     depends_on = [
         aws_vpc.kube_vpc,
         aws_vpc_ipv4_cidr_block_association.secondary_cidr
@@ -146,7 +209,7 @@ resource "aws_subnet" "public_subnet_eks_pods_c" {
     map_public_ip_on_launch = true
 
     tags = {
-        Name = "public_subnet_eks_pods_c"
+        Name = "private_subnet_eks_pods_c"
         #eks 클러스터, 노드 자동생성에 필요한 태그
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
@@ -154,7 +217,7 @@ resource "aws_subnet" "public_subnet_eks_pods_c" {
     }
 
     tags_all = {
-        Name = "public_subnet_eks_pods_c"
+        Name = "private_subnet_eks_pods_c"
         #eks 클러스터, 노드 자동생성에 필요한 태그
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
@@ -171,6 +234,27 @@ resource "aws_internet_gateway" "kube_igw" {
         Name = "kube_igw"
     }
 }
+
+#nat
+resource "aws_eip" "nat_ip" {
+    vpc = true
+
+    lifecycle {
+        create_before_destroy = true
+    }
+}
+
+resource "aws_nat_gateway" "kube_nat" {
+    allocation_id = aws_eip.nat_ip.id
+    subnet_id = aws_subnet.public_subnet_a.id
+
+    tags = {
+        Name = "kube_nat"
+    }
+
+    depends_on = [aws_internet_gateway.kube_igw]
+}
+
 
 #route table
 #안 나눠도 되지만 정석에 따라 rt를 나누겠음.
@@ -198,26 +282,49 @@ resource "aws_route_table" "public_rt_c" {
     }
 }
 
-
-resource "aws_route_table" "public_rt_eks_pods_a" {
+resource "aws_route_table" "private_rt_a" {
     vpc_id = aws_vpc.kube_vpc.id
 
     tags = {
-        Name = "public_rt_eks_pods_a"
+        Name = "private_rt_a"
     }
+
     tags_all = {
-        Name = "public_rt_eks_pods_a"
+        Name = "private_rt_a"
     }
 }
 
-resource "aws_route_table" "public_rt_eks_pods_c" {
+resource "aws_route_table" "private_rt_c" {
     vpc_id = aws_vpc.kube_vpc.id
 
     tags = {
-        Name = "public_rt_eks_pods_c"
+        Name = "private_rt_c"
+    }
+
+    tags_all = {
+        Name = "private_rc_c"
+    }
+}
+
+resource "aws_route_table" "private_rt_eks_pods_a" {
+    vpc_id = aws_vpc.kube_vpc.id
+
+    tags = {
+        Name = "private_rt_eks_pods_a"
     }
     tags_all = {
-        Name = "public_rt_eks_pods_c"
+        Name = "private_rt_eks_pods_a"
+    }
+}
+
+resource "aws_route_table" "private_rt_eks_pods_c" {
+    vpc_id = aws_vpc.kube_vpc.id
+
+    tags = {
+        Name = "private_rt_eks_pods_c"
+    }
+    tags_all = {
+        Name = "private_rt_eks_pods_c"
     }
 }
 
@@ -235,15 +342,26 @@ resource "aws_route_table_association" "public_rt_c_association" {
     route_table_id = aws_route_table.public_rt_c.id
 }
 
-
-resource "aws_route_table_association" "public_rt_eks_pods_a_association" {
-    subnet_id = aws_subnet.public_subnet_eks_pods_a.id
-    route_table_id = aws_route_table.public_rt_eks_pods_a.id
+#private subnet to rt 연결
+resource "aws_route_table_association" "private_rt_a_association" {
+    subnet_id = aws_subnet.private_subnet_a.id
+    route_table_id = aws_route_table.private_rt_a.id
 }
 
-resource "aws_route_table_association" "public_rt_eks_pods_c_association" {
-    subnet_id = aws_subnet.public_subnet_eks_pods_c.id
-    route_table_id = aws_route_table.public_rt_eks_pods_c.id
+resource "aws_route_table_association" "private_rt_c_association" {
+    subnet_id = aws_subnet.private_subnet_c.id
+    route_table_id = aws_route_table.private_rt_c.id
+}
+
+#pod subnet to rt 연결
+resource "aws_route_table_association" "private_rt_eks_pods_a_association" {
+    subnet_id = aws_subnet.private_subnet_eks_pods_a.id
+    route_table_id = aws_route_table.private_rt_eks_pods_a.id
+}
+
+resource "aws_route_table_association" "private_rt_eks_pods_c_association" {
+    subnet_id = aws_subnet.private_subnet_eks_pods_c.id
+    route_table_id = aws_route_table.private_rt_eks_pods_c.id
 }
 
 
@@ -260,15 +378,41 @@ resource "aws_route" "public_rt_c_igw_connect" {
     gateway_id = aws_internet_gateway.kube_igw.id
 }
 
-
-resource "aws_route" "public_rt_eks_pods_a_igw_connect" {
-    route_table_id = aws_route_table.public_rt_eks_pods_a.id
+#rt nat 연결
+resource "aws_route" "private_rt_a_nat_connect" {
+    route_table_id = aws_route_table.private_rt_a.id
     destination_cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.kube_igw.id
+    gateway_id = aws_nat_gateway.kube_nat.id
 }
 
-resource "aws_route" "public_rt_eks_pods_c_igw_connect" {
-    route_table_id = aws_route_table.public_rt_eks_pods_c.id
+resource "aws_route" "private_rt_c_nat_connect" {
+    route_table_id = aws_route_table.private_rt_c.id
     destination_cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.kube_igw.id
+    gateway_id = aws_nat_gateway.kube_nat.id
 }
+
+#pod 쪽
+resource "aws_route" "private_rt_eks_pods_a_nat_connect" {
+    route_table_id = aws_route_table.private_rt_eks_pods_a.id
+    destination_cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.kube_nat.id
+}
+
+resource "aws_route" "private_rt_eks_pods_c_nat_connect" {
+    route_table_id = aws_route_table.private_rt_eks_pods_c.id
+    destination_cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.kube_nat.id
+}
+
+
+#resource "aws_route" "public_rt_eks_pods_a_igw_connect" {
+#    route_table_id = aws_route_table.public_rt_eks_pods_a.id
+#    destination_cidr_block = "0.0.0.0/0"
+#    gateway_id = aws_internet_gateway.kube_igw.id
+#}
+
+#resource "aws_route" "public_rt_eks_pods_c_igw_connect" {
+#    route_table_id = aws_route_table.public_rt_eks_pods_c.id
+#    destination_cidr_block = "0.0.0.0/0"
+#    gateway_id = aws_internet_gateway.kube_igw.id
+#}

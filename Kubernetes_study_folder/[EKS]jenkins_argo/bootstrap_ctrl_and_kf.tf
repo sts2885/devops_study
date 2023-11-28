@@ -2,7 +2,7 @@
 ## Install AWS Controllers
 ## Install Kubeflow
 
-resource "null_resource" "bootstrap_ctrl_and_kf" {
+resource "null_resource" "bootstrap_ctrl_and_kf222" {
 
     depends_on = [
         aws_eks_node_group.eks-nodegroup_1,
@@ -21,10 +21,9 @@ resource "null_resource" "bootstrap_ctrl_and_kf" {
         inline = [
             "chmod 777 /home/ubuntu/k8s-manifests/bootstrap_ctrl_and_kf.sh",
             "bash /home/ubuntu/k8s-manifests/bootstrap_ctrl_and_kf.sh",
-            "nohup bash /home/ubuntu/port_forward.sh 0<&- &> /home/ubuntu/kubeflow.log &",
-            "sleep 1",
-            "nohup bash /home/ubuntu/port_forward_minio.sh 0<&- &> /home/ubuntu/kubeflow2.log &",
-            "sleep 1",
+            "bash /home/ubuntu/k8s-manifests/bootstrap_jenkins_argo_prometheus.sh",
+
+            #지금은 일단 port forward하는데 조만간 ingress로 바꾸자.
             "nohup bash /home/ubuntu/port_forward_prometheus.sh 0<&- &> /home/ubuntu/kubeflow3.log &",
             "sleep 1",
             "nohup bash /home/ubuntu/port_forward_grafana.sh 0<&- &> /home/ubuntu/kubeflow4.log &",
@@ -32,12 +31,7 @@ resource "null_resource" "bootstrap_ctrl_and_kf" {
             #"nohup bash /home/ubuntu/port_forward_otelCollector.sh 0<&- &> /home/ubuntu/kubeflow5.log &",
             #"sleep 1",
 
-            "sudo NEEDRESTART_MODE=a apt install -y net-tools",
-            "helm repo add spark-operator https://googlecloudplatform.github.io/spark-on-k8s-operator",
-
-            "helm install my-release spark-operator/spark-operator --namespace kubeflow-user-example-com --create-namespace",
-
-            "kubectl apply -f /home/ubuntu/my_spark_service.yaml"
+            "sudo NEEDRESTART_MODE=a apt install -y net-tools"
         ]
    }
 }
