@@ -2,7 +2,7 @@
 ## Install AWS Controllers
 ## Install Kubeflow
 
-resource "null_resource" "bootstrap_ctrl_and_kf222" {
+resource "null_resource" "bootstrap_ctrl_and_kf" {
 
     depends_on = [
         aws_eks_node_group.eks-nodegroup_1,

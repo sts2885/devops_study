@@ -108,6 +108,79 @@ kubectl patch --namespace knative-eventing configmap/config-observability \
 
 ######################
 
+#젠킨스 설치
+
+kubectl create namespace jenkins
+sleep 2
+
+kubectl apply -f /home/ubuntu/k8s-manifests/jenkins/storage_class_csi_dynamic.yaml
+sleep 2
+
+kubectl apply -f /home/ubuntu/k8s-manifests/jenkins/pvc-dynamic.yaml
+sleep 2
+
+helm repo add jenkins https://charts.jenkins.io/ 
+sleep 2
+
+helm repo update
+sleep 2
+
+helm install jenkins -n jenkins jenkins/jenkins -f /home/ubuntu/k8s-manifests/jenkins/jenkins-values.yaml
+sleep 60
+
+
+
+#nginx ingress controller 설치
+helm upgrade --install ingress-nginx ingress-nginx \
+  --repo https://kubernetes.github.io/ingress-nginx  \
+  --namespace ingress-nginx --create-namespace
+sleep 60
+
+kubectl get svc -n ingress-nginx
+
+
+
+#argo 설치
+kubectl create namespace argocd
+sleep 2
+
+helm repo add argo https://argoproj.github.io/argo-helm
+sleep 2
+
+helm repo update
+sleep 2
+
+#helm show values argo/argo-cd > argo-values.yaml
+#파일 따로 저장함
+helm install argocd -n argocd argo/argo-cd -f /home/ubuntu/k8s-manifests/argo/argo-values.yaml
+sleep 60
+
+#external name 준비
+kubectl apply -f /home/ubuntu/k8s-manifests/argo/argo_external.yaml
+sleep 2
+
+#argo ingress 연결, jenkins ingress 연결
+kubectl apply -f /home/ubuntu/k8s-manifests/jenkins/ingress_jenkins_argo.yaml
+
+
+#jenkins 비번 획득
+kubectl exec --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password && echo
+
+#argo 비번 획득
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+sleep 60
+
+
+
+
+
+
+
+
+
+
+
 
 
 echo "software installation finished"

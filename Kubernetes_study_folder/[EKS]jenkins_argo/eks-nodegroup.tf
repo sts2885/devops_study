@@ -5,7 +5,8 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
     node_group_name = "eks-nodegroup_1"
     node_role_arn = aws_iam_role.iam-role-eks-nodegroup.arn
     subnet_ids = [
-        aws_subnet.public_subnet_a.id,
+        aws_subnet.private_subnet_a.id
+        #aws_subnet.public_subnet_a.id,
         #aws_subnet.public_subnet_c.id
         ]
     #kubectl top 돌려보니까 kubeflow만 딱 깔았을때 m5.xlarge에서 30퍼센트만 메모리를 쓰고 있었음=> 32기가중 1/3 => 10.7기가 제외하면 다 놀음
@@ -43,9 +44,9 @@ resource "aws_eks_node_group" "eks-nodegroup_1" {
     #Arm and non-accelerated Amazon EKS AMIs don't support the g3, g4, inf, and p families.
     #Accelerated Amazon EKS AMIs don't support the a, c, hpc, m, and t families.
     
-    instance_types = ["t3a.medium"] #["t3a.xlarge"]#이게 2개가 kubeflow 적정 용량
+    instance_types = ["m5.large"]#["t3a.xlarge"]#이게 2개가 kubeflow 적정 용량 #["t3a.medium"] #
     
-    capacity_type = "SPOT" #"ON_DEMAND"# 오랜만에 스팟인스턴스 테스트도 해보자.
+    capacity_type = "ON_DEMAND"# 오랜만에 스팟인스턴스 테스트도 해보자.#"SPOT" #
     disk_size = 50
     
     labels = {
@@ -74,11 +75,12 @@ resource "aws_eks_node_group" "eks-nodegroup_2" {
     node_group_name = "eks-nodegroup_2"
     node_role_arn = aws_iam_role.iam-role-eks-nodegroup.arn
     subnet_ids = [
-        aws_subnet.public_subnet_a.id,
+        aws_subnet.private_subnet_c.id
+        #aws_subnet.public_subnet_a.id,
         #aws_subnet.public_subnet_c.id
         ]
-    instance_types = ["t3a.medium"]#["t3a.small"]#["t3a.xlarge"]#["m5.xlarge"]#["t3a.large"]#
-    capacity_type = "ON_DEMAND"#"SPOT"
+    instance_types = ["m5.large"]#["t3a.xlarge"]#["m5.xlarge"]#["t3a.large"]#["t3a.medium"]#["t3a.small"]#
+    capacity_type = "ON_DEMAND"#"SPOT" #
     
     disk_size= 50
 

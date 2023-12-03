@@ -44,7 +44,7 @@ resource "aws_subnet" "public_subnet_a" {
         #여기에 lb 생성 태그 들어가야 되는 거 아니냐?
 
         #eks 클러스터, 노드 자동 생성에 필요한 태그 <- 그러니까 여기에는 사실상 필요없긴 함.
-        "kubernetes.io/cluster/eks-cluster" = "shared"
+        #"kubernetes.io/cluster/eks-cluster" = "shared"
         #lb  controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
     }
@@ -52,7 +52,7 @@ resource "aws_subnet" "public_subnet_a" {
     tags_all = {
         Name = "public_subnet_a"
         #eks 클러스터, 노드 자동생성에 필요한 태그
-        "kubernetes.io/cluster/eks-cluster" = "shared"
+        #"kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
     }
@@ -72,17 +72,17 @@ resource "aws_subnet" "public_subnet_c" {
     map_public_ip_on_launch = true
 
     tags = {
-        Name = "public_subnet_a"
+        Name = "public_subnet_c"
         #eks 클러스터, 노드 자동생성에 필요한 태그
-        "kubernetes.io/cluster/eks-cluster" = "shared"
+        #"kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
     }
 
     tags_all = {
-        Name = "public_subnet_a"
+        Name = "public_subnet_c"
         #eks 클러스터, 노드 자동생성에 필요한 태그
-        "kubernetes.io/cluster/eks-cluster" = "shared"
+        #"kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
     }
@@ -105,7 +105,7 @@ resource "aws_subnet" "private_subnet_a" {
     #map_public_ip_on_launch = true
 
     tags = {
-        Name = "public_subnet_a"
+        Name = "private_subnet_a"
         #eks 클러스터, 노드 자동생성에 필요한 태그
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
@@ -114,7 +114,7 @@ resource "aws_subnet" "private_subnet_a" {
 
     #이거 있어야 하위 항목에 전부 다 태그달린다는데 정확히 어떤의민지 체감이 잘 안됨
     tags_all = {
-        Name = "public_subnet_a"
+        Name = "private_subnet_a"
         #eks 클러스터, 노드 자동생성에 필요한 태그
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
@@ -145,7 +145,7 @@ resource "aws_subnet" "private_subnet_c" {
     }
 
     tags_all = {
-        Name = "public_subnet_c"
+        Name = "private_subnet_c"
         #eks 클러스터, 노드 자동생성에 필요한 태그
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
