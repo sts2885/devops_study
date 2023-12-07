@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maven-hellworld
+  labels:
+    app: maven
+spec:
+  selector:
+    matchLabels:
+      app: maven
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: maven
+    spec:
+      containers:
+      - name: maven
+        image: escs34/hello_maven:v0.1
+        ports:
+        - containerPort: 80
