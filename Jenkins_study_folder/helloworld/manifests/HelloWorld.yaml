@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: maven-hellworld
+  name: maven-helloworld
   labels:
     app: maven
 spec:
@@ -19,3 +19,5 @@ spec:
         image: escs34/hello_maven:v0.1
         ports:
         - containerPort: 80
+      imagePullPolicy: Always
+      #만약 private repo면 여기에 secret추가하면 된다.
