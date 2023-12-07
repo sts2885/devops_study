@@ -15,5 +15,6 @@ public class App
         System.out.println("Merge를 위한 push 테스트를 합니다.");
         System.out.println("Need one more push for new jenkins at EKS.");
         System.out.println("Need one more push for new jenkins at EKS.");
+        System.out.println("Need one more push for new jenkins at EKS.");
     }
 }
