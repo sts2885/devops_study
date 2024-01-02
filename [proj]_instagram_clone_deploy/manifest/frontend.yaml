@@ -1,0 +1,70 @@
+#deployment, service(clusterIP), ingress
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: instagram-frontend-deployment
+  namespace: instagram-clone
+  labels:
+    project: instagram-clone-project
+    app: instagram-frontend
+spec:
+  selector:
+    matchLabels:
+      project: instagram-clone-project
+      app: instagram-frontend
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        project: instagram-clone-project
+        app: instagram-frontend
+    spec:
+      containers:
+      - name: instagram-frontend-nginx
+        image: escs34/instagram-clone-nginx:v_1.0
+        ports:
+        - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: instagram-frontend-service
+  namespace: instagram-clone
+  labels:
+    project: instagram-clone-project
+    #app: instagram-frontend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    #필요시 80->80이 아니라 8080->80 등으로 설정하여 known port 숨길것
+    #LB에서는 listener port 지정할게 없어서 편하네
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: instagram-frontend
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: instagram-clone-ingress
+  namespace: instagram-clone
+  #annotations: #annotations 안필요할듯? 이게 msp로 이루어진 프로젝트는 아니기 때문에
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: instagram-frontend-service
+  
+

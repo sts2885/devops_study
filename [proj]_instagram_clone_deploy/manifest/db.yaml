@@ -1,0 +1,68 @@
+#Deployment, Service(clusterIP), ## 퇴출 Service(external name)
+
+#pvc 연결해줘야 되는데 그냥 넘어가겠습니다.
+#eks 껐다 켰다 할때마다 ebs sa날아가는 것도 힘들고,local pvc 도 지금은 당장 필요성 못느끼니까.
+#필요하면 jenkins 연결한것 처럼 하면 됨.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: instagram-db-deployment
+  namespace: instagram-clone
+  labels:
+    project: instagram-clone-project
+    app: instagram-db
+spec:
+  selector:
+    matchLabels:
+      project: instagram-clone-project
+      app: instagram-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        project: instagram-clone-project
+        app: instagram-db
+    spec:
+      containers:
+      - name: instagram-db-mysql
+        #근데 이거 잘 생각해보니까 mysql 안에 최초 database는 만들어 놔야 되서 dockerizing해야 되네?
+        image: mysql:8.0.35
+        #container 실행에 시간이 오래걸림. 근데 연결 먼저 하려고 하면 아래처럼 에러가 발생함
+        #ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)
+        #command: ["mysql"]
+        #args: ["-uroot", "-pABcd1234!", "-e", "'create database `instagram-clone`';"]
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: ABcd1234!
+        ports:
+        - containerPort: 3306
+        #위의 이유로 command는 여기 표기
+        #https://stackoverflow.com/questions/44140593/how-to-run-command-after-initialization
+        lifecycle:
+          postStart:
+            exec:
+              command: ['sh', '-c', "sleep 30 && mysql -uroot -pABcd1234! -e 'create database `instagram-clone`;'"]
+              #command: ["mysql", "-uroot", "-pABcd1234!", "-e", "'create database `instagram-clone`';"]
+        
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: instagram-db-service
+  namespace: instagram-clone
+  labels:
+    project: instagram-clone-project
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3306
+    targetPort: 3306
+    protocol: TCP
+    name: tcp
+  selector:
+    app: instagram-db
+
+
