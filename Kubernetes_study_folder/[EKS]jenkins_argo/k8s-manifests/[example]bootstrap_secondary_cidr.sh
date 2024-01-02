@@ -17,6 +17,22 @@ sudo exec > >(sudo tee /var/log/user-data.log|logger -t user-data -s 2>/dev/cons
 echo BEGIN
 
 
+echo "install docker first"
+apt update
+apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
+add-apt-repository --yes "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+apt update
+
+apt install -y docker-ce docker-ce-cli containerd.io
+
+systemctl start docker
+
+
+
 
 
 #aws cli 설치

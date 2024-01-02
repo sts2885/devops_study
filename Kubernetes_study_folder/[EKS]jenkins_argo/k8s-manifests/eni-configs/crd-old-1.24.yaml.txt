@@ -7,11 +7,7 @@
 #=> 근데 이때부터는 안에 schema를 정의해야 한다고함
 #=> 이떄와는 시간대가 달라서 터진 에러인가?
 #=> ensure install 나온거 보니까 eniconfig.yaml에 데이터가 없어서 그런거 같기도 하고
-
-#이제 안씀
-#apiVersion: apiextensions.k8s.io/v1alpha1
-
-apiVersion: apiextensions.k8s.io/v1
+apiVersion: apiextensions.k8s.io/v1alpha1
 #v1beta1
 kind: CustomResourceDefinition
 metadata:
@@ -23,16 +19,8 @@ spec:
   #  - name: v1alpha1
   #version: v1
   #v1alpha1
-  versions: 
-    - name: v1alpha1
-      served: true
-      storage: true
-      schema:
-        openAPIV3Schema:
-          type: object
-          x-kubernetes-preserve-unknown-fields: true
+  version: v1alpha1
   names:
     plural: eniconfigs
     singular: eniconfig
     kind: ENIConfig
-    listKind: ENIConfigList

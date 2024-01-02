@@ -1,0 +1,49 @@
+#deployment, service(clusterIP), ###퇴출service(ExternalName)
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: instagram-backend-deployment
+  namespace: instagram-clone
+  labels:
+    project: instagram-clone-project
+    app: instagram-backend
+spec:
+  selector:
+    matchLabels:
+      project: instagram-clone-project
+      app: instagram-backend
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        project: instagram-clone-project
+        app: instagram-backend
+    spec:
+      containers:
+      - name: instagram-backend-springboot
+        image: escs34/instagram-clone-springboot:k8s_v_1.0
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: instagram-backend-service
+  namespace: instagram-clone
+  labels:
+    project: instagram-clone-project
+    #app: instagram-backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    #필요시 8080-> 8080 이 아니라 18080 -> 8080등으로 설정하여 known port 숨길것
+    targetPort: 8080
+    protocol: TCP
+    name: tcp
+  selector:
+    app: instagram-frontend
+

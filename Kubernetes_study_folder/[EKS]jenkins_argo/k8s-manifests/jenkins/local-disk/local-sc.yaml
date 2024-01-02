@@ -1,0 +1,8 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-sc
+  namespace: jenkins
+#기존 ebs.csi.aws.com 변경 #온프레미스식 local pvc로.
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer

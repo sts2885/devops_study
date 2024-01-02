@@ -13,7 +13,7 @@ resource "aws_eks_cluster" "eks-cluster" {
     name = var.cluster_name
     #리소스 주소 arn
     role_arn = aws_iam_role.iam-role-eks-cluster.arn
-    version = "1.25"
+    version = "1.27"
 
     #로그를 뭘 남길것인가?
     #control plane이 black box가 되서 못보니까
@@ -29,8 +29,8 @@ resource "aws_eks_cluster" "eks-cluster" {
         subnet_ids = [
                         aws_subnet.private_subnet_a.id,
                         aws_subnet.private_subnet_c.id,
-                        aws_subnet.public_subnet_a.id,
-                        aws_subnet.public_subnet_c.id
+                        #aws_subnet.public_subnet_a.id,
+                        #aws_subnet.public_subnet_c.id
                     ]
         endpoint_public_access = true
     }

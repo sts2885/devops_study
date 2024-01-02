@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-dynamic
+  name: pvc-local
   namespace: jenkins
 spec:
   accessModes:
@@ -9,4 +9,4 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  storageClassName: csi-storageclass-dynamic
+  storageClassName: local-sc

@@ -111,53 +111,64 @@ kubectl patch --namespace knative-eventing configmap/config-observability \
 #젠킨스 설치
 
 kubectl create namespace jenkins
-sleep 2
-
-kubectl apply -f /home/ubuntu/k8s-manifests/jenkins/storage_class_csi_dynamic.yaml
-sleep 2
-
-kubectl apply -f /home/ubuntu/k8s-manifests/jenkins/pvc-dynamic.yaml
-sleep 2
 
 helm repo add jenkins https://charts.jenkins.io/ 
-sleep 2
 
 helm repo update
-sleep 2
 
-helm install jenkins -n jenkins jenkins/jenkins -f /home/ubuntu/k8s-manifests/jenkins/jenkins-values.yaml
-sleep 60
+#local pvc 확보
+sudo mkdir -p /data/volumes/pv1
 
+kubectl apply -f /home/ubuntu/k8s-manifests/jenkins/local-disk/local-sc.yaml
+
+kubectl apply -f /home/ubuntu/k8s-manifests/jenkins/local-disk/pv-local.yaml
+
+kubectl apply -f /home/ubuntu/k8s-manifests/jenkins/local-disk/pvc-local.yaml
+
+helm install jenkins -n jenkins jenkins/jenkins -f /home/ubuntu/k8s-manifests/jenkins/local-disk/jenkins-values.yaml
+
+kubectl get pvc -n jenkins
 
 
 #nginx ingress controller 설치
-helm upgrade --install ingress-nginx ingress-nginx \
-  --repo https://kubernetes.github.io/ingress-nginx  \
-  --namespace ingress-nginx --create-namespace
-sleep 60
+#helm upgrade --install ingress-nginx ingress-nginx \
+#  --repo https://kubernetes.github.io/ingress-nginx  \
+#  --namespace ingress-nginx --create-namespace
+#sleep 60
 
-kubectl get svc -n ingress-nginx
+#kubectl get svc -n ingress-nginx
+
+################################
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+helm repo update
+sleep 10
+
+kubecl create namespace ingress-nginx
 
 
+helm install ingress-nginx-manage ingress-nginx/ingress-nginx \
+-n ingress-nginx \
+--set controller.ingressClassResource.name=nginx-manage \
+--set controller.ingressClass=nginx-manage
+
+sleep 30
+
+################################
 
 #argo 설치
 kubectl create namespace argocd
-sleep 2
 
 helm repo add argo https://argoproj.github.io/argo-helm
-sleep 2
 
 helm repo update
-sleep 2
 
 #helm show values argo/argo-cd > argo-values.yaml
 #파일 따로 저장함
 helm install argocd -n argocd argo/argo-cd -f /home/ubuntu/k8s-manifests/argo/argo-values.yaml
-sleep 60
 
 #external name 준비
 kubectl apply -f /home/ubuntu/k8s-manifests/argo/argo_external.yaml
-sleep 2
 
 #argo ingress 연결, jenkins ingress 연결
 kubectl apply -f /home/ubuntu/k8s-manifests/jenkins/ingress_jenkins_argo.yaml
@@ -168,18 +179,6 @@ kubectl exec --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/sec
 
 #argo 비번 획득
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-
-sleep 60
-
-
-
-
-
-
-
-
-
-
 
 
 

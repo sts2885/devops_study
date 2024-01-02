@@ -1,3 +1,5 @@
+#서비스명.네임스페이스명.svc.cluster.local
+#externalName: jenkins.jenkins.svc.cluster.local
 apiVersion: v1
 kind: Service
 metadata:

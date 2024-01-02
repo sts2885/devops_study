@@ -4,7 +4,7 @@
 resource "aws_vpc" "kube_vpc" {
     #cidr_block = "10.1.0.0/16"
     #강의에서 쓴 대역을 따라감 => 이제좀 익숙하니까 작은걸로 바꾸자.
-    cidr_block = "172.31.50.0/24"
+    cidr_block = "172.16.50.0/24"
 
     tags = {
         Name = "kube_vpc"
@@ -33,7 +33,7 @@ resource "aws_subnet" "public_subnet_a" {
     ]
 
     vpc_id = aws_vpc.kube_vpc.id
-    cidr_block = "172.31.50.0/26"
+    cidr_block = "172.16.50.0/26"
 
     availability_zone = "us-east-1a"
 
@@ -44,7 +44,7 @@ resource "aws_subnet" "public_subnet_a" {
         #여기에 lb 생성 태그 들어가야 되는 거 아니냐?
 
         #eks 클러스터, 노드 자동 생성에 필요한 태그 <- 그러니까 여기에는 사실상 필요없긴 함.
-        #"kubernetes.io/cluster/eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb  controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
     }
@@ -52,8 +52,9 @@ resource "aws_subnet" "public_subnet_a" {
     tags_all = {
         Name = "public_subnet_a"
         #eks 클러스터, 노드 자동생성에 필요한 태그
-        #"kubernetes.io/cluster/eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
+        #1은 여기만? shared는 다른 클러스터에서 공유
         "kubernetes.io/role/elb" = 1
     }
 }
@@ -65,7 +66,7 @@ resource "aws_subnet" "public_subnet_c" {
     ]
 
     vpc_id = aws_vpc.kube_vpc.id
-    cidr_block = "172.31.50.64/26"
+    cidr_block = "172.16.50.64/26"
 
     availability_zone = "us-east-1c"
 
@@ -74,7 +75,7 @@ resource "aws_subnet" "public_subnet_c" {
     tags = {
         Name = "public_subnet_c"
         #eks 클러스터, 노드 자동생성에 필요한 태그
-        #"kubernetes.io/cluster/eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
     }
@@ -82,7 +83,7 @@ resource "aws_subnet" "public_subnet_c" {
     tags_all = {
         Name = "public_subnet_c"
         #eks 클러스터, 노드 자동생성에 필요한 태그
-        #"kubernetes.io/cluster/eks-cluster" = "shared"
+        "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
     }
@@ -98,18 +99,21 @@ resource "aws_subnet" "private_subnet_a" {
 
     vpc_id = aws_vpc.kube_vpc.id
     #cidr_block = "10.1.0.0/24"
-    cidr_block = "172.31.50.128/26"
+    cidr_block = "172.16.50.128/26"
 
     availability_zone = "us-east-1a"
 
-    #map_public_ip_on_launch = true
+    map_public_ip_on_launch = true
 
     tags = {
         Name = "private_subnet_a"
         #eks 클러스터, 노드 자동생성에 필요한 태그
+        #버전 1.15 이상인 클러스터에서는 사용되지 않습니다.
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
+        #"kubernetes.io/role/internal-elb" = 1
+
     }
 
     #이거 있어야 하위 항목에 전부 다 태그달린다는데 정확히 어떤의민지 체감이 잘 안됨
@@ -119,6 +123,8 @@ resource "aws_subnet" "private_subnet_a" {
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
+        #"kubernetes.io/role/internal-elb" = 1
+
     }
 }
 
@@ -129,12 +135,12 @@ resource "aws_subnet" "private_subnet_c" {
 
     vpc_id = aws_vpc.kube_vpc.id
     #cidr_block = "10.1.1.0/24"
-    cidr_block = "172.31.50.192/26"
+    cidr_block = "172.16.50.192/26"
     availability_zone = "us-east-1c"
     #az가 같아야 pv mount가능 <= 이제 필요없으니까 돌아간다.
     #availability_zone = "us-east-1a"
     
-    #map_public_ip_on_launch = true
+    map_public_ip_on_launch = true
 
     tags = {
         Name = "private_subnet_c"
@@ -142,6 +148,8 @@ resource "aws_subnet" "private_subnet_c" {
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
+        #"kubernetes.io/role/internal-elb" = 1
+
     }
 
     tags_all = {
@@ -150,6 +158,8 @@ resource "aws_subnet" "private_subnet_c" {
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
+        #"kubernetes.io/role/internal-elb" = 1
+
     }
 }
 
@@ -160,7 +170,7 @@ resource "aws_subnet" "private_subnet_eks_pods_a" {
     ]
 
     vpc_id = aws_vpc.kube_vpc.id
-    cidr_block = "100.64.0.0/19"
+    cidr_block = "100.64.0.0/17"
     
     #뭐야. 가만히 보니까 강사 코드에는 az 명시가 안되어 있는데?
     #공유한 코드에는 명시가 되어 있는데 강의에는 없는데? 지금부터 추가하나?
@@ -176,6 +186,8 @@ resource "aws_subnet" "private_subnet_eks_pods_a" {
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
+        #"kubernetes.io/role/internal-elb" = 1
+
     }
 
     tags_all = {
@@ -184,6 +196,8 @@ resource "aws_subnet" "private_subnet_eks_pods_a" {
         "kubernetes.io/cluster/eks-cluster" = "shared"
         #lb controller service account를 생성하기 위한 태그
         "kubernetes.io/role/elb" = 1
+        #"kubernetes.io/role/internal-elb" = 1
+
     }
 }
 
@@ -200,7 +214,7 @@ resource "aws_subnet" "private_subnet_eks_pods_c" {
     # 그래서 같은 코드에서 모듈만 적용해서 새로 띄우는데
     # 새로 띄운 모듈이 같은 subnet을 바라보고 있다? <- 의도한게 아니라면, 에러 발생의 소지까지 생김
     vpc_id = aws_vpc.kube_vpc.id
-    cidr_block = "100.64.32.0/19"
+    cidr_block = "100.64.128.0/17"
 
     availability_zone = "us-east-1c"
     #az가 같아야 pv mount가능
@@ -382,26 +396,30 @@ resource "aws_route" "public_rt_c_igw_connect" {
 resource "aws_route" "private_rt_a_nat_connect" {
     route_table_id = aws_route_table.private_rt_a.id
     destination_cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.kube_nat.id
+    #gateway_id = aws_nat_gateway.kube_nat.id
+    nat_gateway_id = aws_nat_gateway.kube_nat.id
 }
 
 resource "aws_route" "private_rt_c_nat_connect" {
     route_table_id = aws_route_table.private_rt_c.id
     destination_cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.kube_nat.id
+    #gateway_id = aws_nat_gateway.kube_nat.id
+    nat_gateway_id = aws_nat_gateway.kube_nat.id
 }
 
 #pod 쪽
 resource "aws_route" "private_rt_eks_pods_a_nat_connect" {
     route_table_id = aws_route_table.private_rt_eks_pods_a.id
     destination_cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.kube_nat.id
+    #gateway_id = aws_nat_gateway.kube_nat.id
+    nat_gateway_id = aws_nat_gateway.kube_nat.id
 }
 
 resource "aws_route" "private_rt_eks_pods_c_nat_connect" {
     route_table_id = aws_route_table.private_rt_eks_pods_c.id
     destination_cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.kube_nat.id
+    #gateway_id = aws_nat_gateway.kube_nat.id
+    nat_gateway_id = aws_nat_gateway.kube_nat.id
 }
 
 
