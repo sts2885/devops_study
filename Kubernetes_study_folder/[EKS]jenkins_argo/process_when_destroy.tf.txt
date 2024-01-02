@@ -1,0 +1,19 @@
+/*
+resource "null_resource" "process_when_destroy" {
+
+    connection {
+        type = "ssh"
+        user = "ubuntu"
+        private_key = "${file("DevOps_Study.pem")}"
+        host = aws_instance.bastion.public_ip
+    }
+
+    provisioner "remote-exec" {
+        when = destroy
+        command = "/home/ubuntu/k8s-manifests/process_when_destroy.sh"
+    }
+    lifecycle {
+        create_before_destroy = true
+    }
+}
+*/

@@ -1,0 +1,10 @@
+#$ echo -n ABcd1234! | base64
+#QUJjZDEyMzQh
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-root
+type: Opaque
+data:
+  password: QUJjZDEyMzQh

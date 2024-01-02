@@ -18,6 +18,9 @@ resource "aws_instance" "bastion" {
     tags = {
         Name = "bastion server"
     }
+    lifecycle {
+        create_before_destroy = true
+    }
 }
 
 

@@ -13,7 +13,7 @@ resource "aws_eks_cluster" "eks-cluster" {
     name = var.cluster_name
     #리소스 주소 arn
     role_arn = aws_iam_role.iam-role-eks-cluster.arn
-    version = "1.25"
+    version = "1.27"
 
     #로그를 뭘 남길것인가?
     #control plane이 black box가 되서 못보니까
@@ -26,8 +26,11 @@ resource "aws_eks_cluster" "eks-cluster" {
 
         #강의는 너무 이지모드로 했네, 서브넷 안만들어서 넣을 방법이 없다니
         #목록 읽어와서 변수에 넣어서 넣으면 될텐데
-        subnet_ids = [aws_subnet.public_subnet_a.id,
-                        aws_subnet.public_subnet_c.id
+        subnet_ids = [
+                        aws_subnet.private_subnet_a.id,
+                        aws_subnet.private_subnet_c.id,
+                        #aws_subnet.public_subnet_a.id,
+                        #aws_subnet.public_subnet_c.id
                     ]
         endpoint_public_access = true
     }
