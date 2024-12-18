@@ -1,0 +1,107 @@
+
+
+sudo docker run -itd \
+-p 3306:3306 \
+--restart=always \
+--name mysql \
+-e MYSQL_ROOT_PASSWORD=147896 \
+test/mysql:test2
+
+sudo docker run -itd \
+-p 13306:3306 \
+--restart=always \
+--name mysql \
+-e MYSQL_ROOT_PASSWORD=147896 \
+mysql:8.0.35
+
+
+
+
+
+
+
+docker build -t test/mysql:test2 .
+
+docker rm -f mysql
+
+docker run -itd ^
+-p 3306:3306 ^
+--restart=always ^
+--name mysql ^
+-e MYSQL_ROOT_PASSWORD=147896 ^
+test/mysql:test2
+
+docker logs -f mysql
+
+
+docker cp schema_only.sql mysql:/
+docker cp data_only.sql mysql:/
+
+
+docker exec -it mysql bash
+
+
+mysql -uroot -p147896
+CREATE DATABASE aihub_safezone;
+
+SET SESSION sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
+
+#create user 'root'@'%' IDENTIFIED BY '147896';
+#권한 주기, mysql 버전 별로 명령어가 다를 수 있음
+
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '147896';
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+
+create user 'app_user'@'%' identified by 'safezone!@#123';
+
+ALTER USER 'app_user'@'%' IDENTIFIED WITH mysql_native_password BY 'safezone!@#123';
+
+GRANT ALL PRIVILEGES ON *.* TO 'app_user'@'%' WITH GRANT OPTION;
+
+USE aihub_safezone;
+
+UPDATE ml_user
+SET
+us_ip="220.74.21.61,localhost,::1";
+
+UPDATE ml_user
+SET
+us_email='localServer@test.com',
+us_phno='11199999999'
+WHERE us_email!='tsson@otwocloud.com';
+
+
+
+
+
+mysql -uroot -p147896 --port=3306 aihub_safezone < schema_only.sql
+
+mysql -uroot -p147896 --port=3306 aihub_safezone < data_only.sql
+
+grant all privileges on DB이름.* to '사용자'@'localhost';
+
+
+docker run -itd ^
+-p 3306:3306 ^
+--name inframanager_db ^
+-e MYSQL_ROOT_PASSWORD=otwo@1011 ^
+mysql:8.0.35
+
+
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'otwo@1011';
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+
+create user 'app_user'@'%' identified by 'otwo@1011';
+
+ALTER USER 'app_user'@'%' IDENTIFIED WITH mysql_native_password BY 'otwo@1011';
+
+GRANT ALL PRIVILEGES ON *.* TO 'app_user'@'%' WITH GRANT OPTION;
+
+CREATE DATABASE inframanager
+
+

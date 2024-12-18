@@ -752,21 +752,165 @@ localhost:8080/hello/customer?customerid=100
 이거랑 대조적
 
 
+## 08 데이터베이스 이론
+
+관계형 db 행과 열로 테이블 관리
+
+여러 작업을 한번에 처리해주는 트랜잭션 기능 있음.
+
+약점 : 대용량, 고속 처리
+
+
+nosql
+
+키밸류 : memcached (조회속도 올리는 캐시 저장소)
+document : mongodb, couchbase
+컬럼 : HBase, Cassandra (쓰기 최적화)
+그래프 : neo4j, amazon neptune
+
+강점
+- 고속
+- 비정형 데이터
+- 분산처리
+- 많은 양의 데이터
+
+약점
+- 관계형 결합의 미지원
+- 일관성이나 정합성이 약함
+- 트랜잭션 미지원 또는 어려움
+
+
+기본은 관계형으로 하고 해결 안되는걸 nosql로 해라
+
+sql
+
+
+dml -> insert update
+dql -> select
+ddl -> create
+dcl -> grant
+tcl -> rollback
+
+트랜젝션 : 여러건의 sql -> 하나의 꾸러미로 묶어서 처리함.
+
+중간에 문제가 생기면 최초로 돌아감
+
+all or nothing effect
+
+철수 영희 10만
+영희 10만 증가
+철수 10만 감소
+송금 이력 기록
+
+이거 중에 하나라도 안되면 리셋
+
+트랜젝션 - 커밋
+처리가 성공하면 데이터베이스에 반영
+
+실행 도중에는 미반영
+
+트랜젝션 - 롤백
+중간 실패시 롤백
+
+인덱스
+
+검색과 정렬 속도 개선
+
+컬럼값의 종류가 많을때, 데이터양이 많을때, 저주 정렬이나 검색 필터에 이용되면
+인덱스 생성
+
+
+인덱스 -> 삽입 수정 삭제시 속도 떨어짐
+수정이 빈번한 테이블은 조심해야 함.
+
+인덱스관리 영역만큼 데이터 베이스 용량 더 필요
+
+CREATE INDEX 테스트인덱스 ON 테스트테이블 ([col], [col]...);
+
+
+어플리케이션의 검색조건과 정렬에는 반드시 인덱스를 생성할것
+
+인덱스 생성시 인덱스 이름 관례 정하기
+
+테이블명_index_01
+테이블명_index_02
+
+
+## 09 db 실습
+
+
+일단 mysql은 docker로 킴
+
+
+스키마 생성
+CREATE SCHEMA `ecommerce` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ;
+
+유저 몇개 만들어 넣기
+
+
+CREATE SCHEMA `ecommerce` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ;
+
+이거 하면 ecommerce라는 db가 만들어짐
+테이블은 비어 있음
+
+CREATE USER 'app'@'localhost' identified by 'app123!@#';
+GRANT ALL PRIVILEGES ON *.* TO 'app'@'localhost';
+GRANT ALL PRIVILEGES ON ecommerce.* TO 'app'@'localhost';
+
+2를 했는데 3은 왜 필요하지? ;;;
+
+mysql tutorial이라는 웹페이지에 있는 스키마 그대로 가져다가 쓰려는듯
+
+
+어리둥절하게도 ecommerce라는 스키마를 만들어 놓고 가져온 스키마 또 만들어서 ecommerce는 그냥 텅 비고
+classicmodels라는 스키마를 쓰게 됨.
+
+
+
+
+
+#CREATE SCHEMA `ecommerce` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ;
+
+#CREATE USER 'app'@'localhost' identified by 'app123!@#';
+#GRANT ALL PRIVILEGES ON *.* TO 'app'@'localhost';
+#GRANT ALL PRIVILEGES ON ecommerce.* TO 'app'@'localhost';
+
+#GRANT ALL PRIVILEGES ON classicmodels.* TO 'app'@'localhost';
+
+#allowPublicKeyRetrieval = true;
+
+
+
+
+.sql 파일 받아서 넣었음
 
 
 
 
 
 
+#SHOW DATABASES;
+#USE classicmodels;
+#SHOW TABLES;
+
+#SELECT * FROM customers;
+
+SELECT customerName FROM customers;
 
 
 
+안전하게 업데이트 하는 팁 -> update 전에 select를 먼저 해서 검증을 먼저 
 
 
+hard delete
+
+soft delete -> isDeleted 라는 컬럼 추가 해서 체크
+=> 워크벤치 쓰니까 GUI로 컬럼 추가가 되네
 
 
+join에서 on을 해서 조건문
 
-
+full scan -> 장애로 이어질 수 있음.
 
 
 
