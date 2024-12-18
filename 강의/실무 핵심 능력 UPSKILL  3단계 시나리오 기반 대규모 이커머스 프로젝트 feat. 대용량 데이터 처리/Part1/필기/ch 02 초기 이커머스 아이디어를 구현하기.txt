@@ -1,0 +1,801 @@
+
+
+
+버전관리 vcs의 이해
+
+
+
+
+버전관리 타임머신
+
+로컬 db
+
+중앙집중식 cvs, subversion
+
+분산 git
+
+checkout 상대적 참조 이동
+
+캐럿 ^ : 부모 커밋으로. ^^는 2단계 위
+틸드 ~ : ~3 3개 이동
+
+
+
+git checkout main^^
+git checkout main~3
+
+
+깃 브랜치,
+
+커밋 되돌리기, 이력관리
+
+병합치 출총 해결
+
+gui
+
+동료와 함께
+
+커밋 한 후 다시 커밋하고 싶을때, 이전 커밋 덮어쓰기
+
+git commit --amend
+
+
+커밋 취소
+
+git reset HEAD^
+git reset "취소할 커밋 체크섬"
+
+공유된거 리셋 말라
+
+커밋 되돌리기 revert
+반대 커밋을 새로 만들어서 되돌림
+
+다른 사람과 공유한 브랜치는 절대 하지 않는다.
+
+cherry-pick
+특정 커밋만 가져오고 싶을때
+
+git cherry-pick "커밋 체크섬"
+
+
+
+병합시 충돌 해결 하기
+
+충돌 생긴걸 에디터로 열어 어떤걸 지울지 선택해야.
+
+필요없는 내용을 지우면 머지 가능
+
+머지 진행하고 싶지 않을때
+git merge --abort
+
+아, 머지 명령어 쳤는데 충돌나면 아 그냥 안할게 이건가?
+
+
+
+#### 01 02 03 전부 깃 깃허브 단순 이론임
+
+뭐 git flow나 trunk based development 를 가르치는 것도 아니어서
+
+
+git init 하고 뭐 기본적인거 하는 중
+
+
+git status
+git add
+
+git add README.md
+
+
+충돌 났을때 vim으로 가면 충돌난게 에디터에 표기되어 있음
+지금 머지 진행중이라서 그런거임 표기된거 치우려면 머지를 중단하면 됨.
+
+꺽쇠>>>>HEAD1 표시로 어디에 뭐가 있는지 표기 되고, 꺽쇄 다 지우고 특정 내용만 남기면 충돌 해결됨.
+
+충돌 수정 add commit하면 됨.
+
+
+
+
+#### 04 웹 개발용 프레임워크 이론
+
+
+프레임워크의 정의
+토대, 기반
+
+
+문제 해결에 필요한 기반, 토대 건설 같이.
+
+개발에 필요한 것들을 미리 다 모아줘서 편하게 해주는 것
+
+웹프레임워크
+서비스, 기능, 도구들을 모아둠
+
+마이크로 프레임워크
+-> 라이브러리를 직접 포함시켜야함
+
+springboot - java, kotlin
+ktor,javalin- kotlin
+
+풀 스택 프레임워크
+- 개발에 필요한 대부분의 라이브러리가 포함됨.
+- play - java, scala
+- django - python
+
+프레임워크 뭘 선택해야 하냐?
+
+보안성,
+확장성,
+생산성, : 써서 오히려 생산이 느려진다? 그럼 안된다.
+개발자 커뮤니티,
+학습곡선,
+유지보수성,
+개발자 채용 : 너무 마이너하면 개발자 채용이 힘들어짐.
+
+
+유행에 너무 민감하지 말라. 충분히 검증되고 해야 한다.
+
+커뮤니티도 활발해야 한다.
+프레임워크 성숙도
+
+도입후 되돌아가기 어렵다.
+
+web 개발과 api 개발
+
+- 웹개발 - 이커머스
+이커머스 고객 서비스
+이커머스 판매자 서비스
+서비스 운영에 필요한 관리자 서비스
+
+
+
+아 조금 아쉬운거 같아.
+
+나는 이거 프레임워크 설명인줄 알았는데,
+
+개발 시작부 인거 아냐 지금
+
+개발 시작은
+
+pain point, user story 에서 시작해서,
+
+시작은 customer interview에서 시작해야지...
+
+아, 이거 고객이 상품 판매를 원하는 구나
+xxx 무슨 무슨 특징을 원하는 구나
+이걸 잡고 
+
+고객 서비스
+판매자 서비스
+관리자 서비스
+
+이렇게 나눴다고 생각했는데,
+
+처음부터, 이 모양이라도 잡아두고 시작한거네?
+
+그렇잖아?
+마치 처음부터, 웹페이지를 3으로 쪼갤거야 부터 시작한것처럼.
+
+고객이 원하는 특징에 따라 둘이 합쳐질 수 도 있는 건데.
+
+이럴거면 개발 방법론은 왜 생각하나.
+처음부터 쿠팡 베끼자 하면 되는데
+
+이런 생각이 좀 들음.
+
+이커머스 고객 서비스,
+
+구매 목적으로,
+
+검색, 탐색 서비스 제공하ㅗㄱ 있다.
+
+검색은 검색엔진 형태고
+탐색은 카테고리 형태임
+
+전형적인 형태를 만듦
+웹 개발 사례라는듯
+
+
+feasibily study에 가깝다고 봐야 되려나?
+
+
+이커머스 판매자 서비스
+
+상품 판매에 필요한 기능을 제공하는 서비스
+- 상품 관리
+- 주문 관리
+- 배송 관리
+- 고객 관리
+- 광고 관리
+- 정산 관리
+
+네이버 스마트 스토어를 예시로 들음.
+
+
+
+이커머스 관리자 서비스
+판매와 구매를 안정적으로 운영할 수 있도록 지원하는 서비스
+
+주문 관리
+배송 관리
+고객 서비스
+결제 서비스
+정산 서비스
+회원 관리
+기타 내부 시스템 관리
+
+
+이게... 그러니까 마치 MSA에서 상위 도메인 같아보이긴 하네
+
+
+아... 다른 수업이랑 달리 뭐가 아쉬웠다 싶었는데
+
+시작이 이미 정해져 있다는거...
+
+정의 절차가 없네....
+
+이런식으로 했어야 하는데
+- 3명의 User가 있습니다.
+이커머스 관리자
+-> 고객들 주문을 볼 수 있어야.
+-> 배송관리를 해 줄 수 있어야
+-> 고객 서비스? 이건 뭐임? <- 그니까 이런게 목적 없이 베끼면 생기는 거임 왜 있는지 모르잖아.
+-> 결제 서비스 <- 관리자가 이게 왜 있어야 되지? 고객 결제 내역 확인인건가?
+-> 정산 서비스 <- 정산을 관리자가 눌러줘야 되는거임? 수동으로? 정산된 내역이 남는 정도인건가?
+-> 회원 관리 <- 이건 이해 됨.
+-> 기타 내부 시스템 관리
+
+고객
+
+판매자
+
+
+이런 식으로 시작 했어야 했는데
+
+
+api 개발 - 이커머스
+
+필요한 데이터를 제공하는 application programming interface 개발
+
+서비스 전용 api
+
+open api
+
+사례 1
+클라가 api를 통해 db 접근
+
+2
+브라우저가 웹서버를 통해 들어와서 내부 서비스들에 api를 통해 접근하고 db 접근함
+
+3
+브라우저가 웹서버를 통해 들어와서 api 끼리 상호 통신함.
+
+api 데이터 전달이 목적
+
+데이터 포맷과 전송 방법이 중요해짐
+
+json을 많이 쓰고 있다.
+
+다른것도 많지만 이거 설명하겠음
+
+서비스 전용 api
+
+아쉽다.. 이렇게 api 부터 정의하는데, 정의 하는 법에서 부터 시작했으면...
+이거 지금 DDD인거잖아. 도메인을 나누고 있는것데
+
+처음부터 나눠져 있는 상태에서 시작하고 있는 거네
+
+
+입력, 조회, 삭제
+http 프로토콜 메소드와 유사함
+
+
+외부에서 api 를 고려해서 사용하는 구조로 쓰면, 이후 api 변경할때 문제가 터짐.
+
+
+openapi 외부에서 공식적으로 공개되어 제공되는 api
+
+
+사용을 위한 승인,
+
+api 변경 정보 공지 또는 안내
+관리되는 api
+
+근데 보통 ㅈ되 않으려고인지
+예전 api를 삭제는 안하더라.
+
+2.x, 3.x까지 가도 1.0 1.1 1.2 이런거 남겨두더라
+
+구글 지도 api 네이버 지도 api 등이 있음.
+
+http api, rest api, restful api
+
+http를 rest 아키텍처를 따르면 rest api임
+api를 sql 처럼 쿼리 가능한 graphQL
+gRPC 내부 통신을 할때
+
+강의에서는 http만 쓴다.
+
+
+업계 표준인 spring framework
+
+springboot
+
+왜 spring framework가 업계 표준일까?
+
+제어 역전 (IoC)
+{
+객체 생명 주기의 제어권 관련 개념
+
+객체 생명 주기를 직접 제어
+- 기본적으로 개발자가 직접 필요한 객체를 직접 생성
+- 객체에 필요한 의존성도 직접 주입
+
+객체 생명 주기를 위임
+- 스프링 컨테이너
+- IoC 컨테이너
+=> 그니까 객체 생명 주기를 위임한다는건 Bean 같은걸 말하는거 아냐, 정의는 내가 하는데 생성 삭제 관리는 프레임워크에서 해주는거
+컨테이너는 뭔지 모르겠음.
+
+아... 제어 역전이라고 해서 뭔가 했는데
+영어로 하니까 Inversion of Control임 이 Control 이 MVC에서의 Control이잖아?
+
+이걸 왜 외부에서 대신 함?;;;
+들어왔을때 원하는 조건 아니면 되돌려 보내야 될거 아냐;;;
+
+IoC 구현방법
+- Factory Parttern 객체 생성 전담 팩토리 클래스를 두어 생성 - 객체 생성에 대한 책임이 팩토리 클래스로 이전됨.
+- Template Method Pattern
+- Service Locator Pattern
+- Dependency Injection
+
+
+직장에 차를 몰고 가는 것은 내가 차를 제어하는 것이다.
+직접 차를 운전하는 대신 운전 기사를 고용한다면 이것을 제어의 역전이라고 한다.
+
+소프트웨어 공학의 주요 원칙 중 하나는 클래스 간의 상호 의존성을 최소로 가져야 한다는 것이다. (low coupling; 낮은 수준의 결합)
+IOC는 클래스 간의 결합을 느슨하게 해 테스트와 유지 관리를 더 쉽게 하는 설계(design) 원칙이다. 
+IOC란 메인 프로그램에서 컨테이너나 프레임워크로 객체와 객체의 의존성에 대한 제어(control)를 옮기는 것을 말한다.
+IOC는 설계(디자인) 패턴이 아니라 원칙이다.
+
+
+
+https://jhyonhyon.tistory.com/31
+
+
+
+public class A {
+    private B b = new B();
+    b.method1();
+}
+위 같은 경우는 A객체가 B객체에 의존하고 있는 것이죠. 하지만 B객체 언제 생성이 되는지 명시가 돼있습니다. 
+명시가 돼있다는건 개발자가 이 객체의 생명주기를 직접 생각해야된다는 의미이기도 합니다.
+
+
+하지만 스프링이 제공하는 @Autowired 어노테이션을 사용하면
+
+public class A {
+    @Autowired
+    private B b;
+
+    b.method1();
+}
+이렇게 객체를 초기화하거나 새로 생성하지 않고 사용할 수 있습니다.
+
+ 
+
+오잉? 객체가 초기화가 안되었는데 어떻게 메소드를 호출하나요?? 저거 NPE 나는거 아는가요?
+
+저 객체의 초기화는 스프링 프레임워크에서 알아서 해줍니다. 이게 바로 IoC의 핵심입니다.
+
+이건 이해가 되네... 생성자 안에서 일일이 선언하지 않아도 되게 하는구나...
+생성자에서 되게 할지, setter에서.,.. 등등 원랜 내가 신경쓸걸 다 떠넘겨버리고 다른 걸 더 보는구나
+
+스프링 컨테이너(IoC 컨테이너)
+IOC 컨테이너에는 2가지의 핵심적인 클래스가 있습니다.
+
+BeanFactory:
+자바 객체(bean) 인스턴스를 생성, 설정, 관리하는 실질적인 컨테이너입니다.
+getBean() 메소드를 통해 빈을 인스턴스화할 수 있습니다.
+BeanFactory 컨테이너는 구동될 때 Bean 객체를 생성하는 것이 아니라, 클라이언트의 요청이 있을 때 Bean 객체를 생성합니다.
+ApplicationContext:
+BeanFactory를 상속받은 BeanFactory의 확장 버전입니다.
+BeanFactory를 상속받은 interface이며, ApplicationContext 컨테이너는 구동되는 시점에 등록된 Bean 객체들을 스캔하여 객체화한다
+부가 기능과 빈을 지연 없이 얻을 수 있다는 장점으로 ApplicationContext을 실제 개발에서 주로 사용합니다.
+}
+의존성 주입 (DI)
+{
+의존성 주입 (dependency injection)
+- 전통적인 방식은 필요한 컴포넌트 직접 생성 및 주입
+- 필요한 의존성 컴포넌트를 스프링 컨테이너, IoC 컨테이너가 주입
+
+여러 방법으로 가능
+
+생성자 방식
+생성자를 통해서 의존성을 주입함
+보니까... composite인데?
+
+
+@RestController
+public class ProductController {
+
+ private PushService pushService;
+ public ProductController(PushService pushService) {
+  this.pushService = pushService;
+ }
+}
+
+이게... 왜 생성자 주입 방식이라는 건지 사실 잘 모르겠음.
+
+@Bean 나올 줄 알았는데...
+
+생성자에서 private 변수에 넣어서 composite으로 가지는게... 왜?
+
+필드 선언 혹은 setter 방식이 있다.
+
+}
+
+관점 지향 개발 (AOP)
+{
+공통으로 필요한 기능을 제공한다.
+
+공통적으로 필요한 기능을 묶어서 모듈로 제공
+- 보안, 로깅, 트랜잭션
+
+핵심 기능과 부가기능
+구현방법 3가지
+- 런타임 시점(프락시 패턴)
+- 클래스 로딩 시점
+- 컴파일 시점
+
+어떤 로직을 기준으로 핵심적인 관점, 부가적인 관점으로 나누어서 보고 그 관점을 기준으로 각각 모듈화하겠다는 것이다.
+출처: https://engkimbs.tistory.com/entry/스프링AOP [새로비:티스토리]
+
+class A, B, C 에 각각 구현된 기능 들 중 겹치는걸 다 모아둠
+
+계속 반복해서 씀
+-> Crosscutting Concerns
+
+흩어진 관심사를 Aspect로 모듈화하고 핵심적인 비즈니스 로직에서 분리하여 재사용하겠다는 것이 AOP의 취지
+출처: https://engkimbs.tistory.com/entry/스프링AOP [새로비:티스토리]
+
+ 
+스프링 @AOP를 사용하기 위해서는 다음과 같은 의존성을 추가해야 한다. 
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-aop</artifactId>
+</dependency>
+출처: https://engkimbs.tistory.com/entry/스프링AOP [새로비:티스토리]
+
+다음에는 아래와 같이 @Aspect 어노테이션을 붙여 이 클래스가 Aspect를 나타내는 클래스라는 것을 명시하고 @Component를 붙여 스프링 빈으로 등록한다.
+
+출처: https://engkimbs.tistory.com/entry/스프링AOP [새로비:티스토리]
+@Component@Aspectpublic class PerfAspect {@Around("execution(* com.saelobi..*.EventService.*(..))")public Object logPerf(ProceedingJoinPoint pjp) throws Throwable{long begin = System.currentTimeMillis(); Object retVal = pjp.proceed(); // 메서드 호출 자체를 감쌈 System.out.println(System.currentTimeMillis() - begin); return retVal; }}
+출처: https://engkimbs.tistory.com/entry/스프링AOP [새로비:티스토리]
+
+별 작업을 안해도 자동으로 로그와 시간을 남기게 하려는거 같은데
+이걸 쓴다는걸 어캐 선언함?
+@Around("execution(* com.saelobi..*.EventService.*(..))")
+출처: https://engkimbs.tistory.com/entry/스프링AOP [새로비:티스토리]
+
+아... 저기 Around 안에 어디 패키지의 어떤 부분의 모든 패키지에 다 적용한다고 표기하는거네...
+
+와... 나 전부터 가지고 있던 고민 하나 해결함.
+
+각 클래스에 일일이 로그 코드 넣으면 한줄만 되도 개 보기 싫을텐데...
+디딤365 코드도 그렇게 되어 있고... 어쩌지? 했는데.
+
+프레임 워크 내에서 안봐도 되도록 할 수 있는거구나.
+
+이 예제는 클래스 컴파일 시점에 되고, 메소드 실행시간이라는 로그를 남기기 위한건데
+
+강의를 보니까 이거 말고도 컴파일 시점, 클래스 로딩 시점, 런타임 시점(프락시 패턴)
+보안, 로깅, 트랜잭션 등에 쓸 수 있다 라고 함.
+
+
+
+}
+
+
+Spring framework의 다양한 모듈들
+- DA (JDBC, ORM, transaction 등등)
+- Web (MVC, Remoting -> web, servlet, portlet, struts)
+- AOP
+- Aspects
+- Core container -> beans, core, context, expression language
+- test
+
+모두 다 쓰진 않고 필요한거만 쓰면 된다.
+
+
+스프링 문제
+-> 설정 복잡
+- 직접 설정해야 함
+- XML 은 사람이 보기 불편함.
+
+개선위해 springboot사용함.
+
+-> 설정 복잡함을 쉽게
+-> xml이 아닌 자바 설정 : 유지보수성... maven은 여전히 xml쓰는데?
+-> 직접 설정 x 자동설정 제공
+-> 내장 WAS 제공 톰캣이 안에 내장되어 있죠
+-> 시스템 모니터링 제공
+
+
+springboot 특징
+- 빠른 개발 속도 (아래 다른 항목들 때문에)
+- 단독 실행 가능
+- 관례에 따른 자동 설정
+- 스프링 프레임워크 기반
+- 수많은 실 서비스 사례
+- 웹 서버 내장
+- 스타터를 이용한 의존성 구성
+- 설정 파일을 통한 외부 설정
+- 자바 구성
+
+
+스프링부트 -> 이니셜라이저 이용
+(나는 vscode 꺼를 쓰긴 했는데)
+
+(IDE 내부에서 제공한다 라고 바로 말하네)
+
+프로젝트 방식 설정 - Maven, Gradle (실습은 gradle)
+언어 - java
+스프링부트 버전 선택 - 너무 최신보다는 안정버전
+프로젝트 메타 정보
+- 자바 8
+- 자바 11
+- 자바 17
+
+의존성 선택 - 웹 개발에 필요한 모듈 추가
+- 템플릿엔진, 데이터, 보안, 캐시, 메세지 등등
+
+
+자바 개발 환경
+
+SDK -> SDKMAN (관리 도구)
+
+
+JDK 다양 -> 1컴퓨터에서 관리 힘듦
+
+
+직접 관리 하는 것보다 sdkman이 더 편하다고 함.
+
+윈도우는 git bash에서 zip, bzip인가? 하는거 가져다가 넣고 명령어 쳐야 함.
+
+https://rkwhr0010.tistory.com/168
+
+
+최신 버전 설치
+
+sdk install java
+
+특정 버전 설치
+
+sdk install java 17-zulu
+
+삭제하기
+
+sdk uninstall java 17-zulu
+
+sdk list
+
+sdk list java
+
+sdk use java 17-zulu
+
+
+nodejs의 nvm 같은거네
+
+기본 버전 설정
+
+sdk default java 17-zulu
+
+sdk current java
+
+sdk current
+
+## 06. springboot 설치 및 hello api
+
+여기에서는 intellij 쓰네
+
+2.6.13버전 쓸것
+java 11
+
+gradle project
+
+spring web
+
+
+ide 에서 만들기 vs spring initializer에서 설치
+
+https://start.spring.io/
+
+
+
+
+spring web -> api를 만들거니까
+
+
+
+간단한 hello api 추가
+
+hellocontroller 자바 파일 추가
+
+이거.. 되게 간단한거만 하고 끝나는거 아니냐?
+
+
+##0.7 web 개발용 프레임워크 실습
+
+
+postman : api test
+telend api tester : api test
+
+
+DTO : api 끼리 통신을 위해 데이터 주고 받기 위해 쓰는 객체
+REST API : 이 아키텍처 스타일로 만든 api를 말함.
+
+get, post, put, delete로 웹 자원을 표현
+
+이걸로 api를 만들면 RESTful API
+
+레이어드 아키텍처
+
+클라이언트 요청, 프레젠테이션 계층 비즈니스 계층 데이터 접근 계층
+
+프레젠테이션 계층 - 요청을 해석, 처리 위임, 응답, api endpoint, controller
+비즈니스 계층 - 요청을 처리, 도메인 로직을 활용
+데이터 접근 계층 - 데이터를 처리하는 저장소와 연동을 담당
+
+client - controller - service + domain - repository
+
+기본 web 개발 어노테이션
+
+@SpringBootApplication
+시작 자동 설정 컴포넌트 스캔
+
+@Controller
+해당 클래스가 controller역할을 한다
+
+@Service annotation
+도메인로직, 비즈니스로직
+
+@Repository 데이터 처리 저장소 관련 역할
+
+@Component
+컴포넌트로 등록되어서 생성자를 호출 안해도 됨
+
+@Bean
+외부 클래스 등록해서 쓸때 많이 씀.(프레임워크나 외부에서 제공받을때)
+
+@Configuration
+프로젝트 설정을 코드로
+
+@RestController
+- REST API를 만들기 위한 controller 어노테이션
+
+@GetMapping
+
+@PostMapping
+...
+
+
+@Request Mapping
+- url과 동일한 메소드찾아서 실행
+- 클래스, 메서드 단위 매핑 가능
+
+
+@PathVariable
+
+@RequestBody
+
+@ResponseBody
+
+
+@GetMapping (value = "/hello")
+public String helloGet() {
+	return "Hello Get";
+}
+
+
+
+메소드들 만들어서 debug 모드, postman으로 테스트 해봤고
+
+client 폴더를 만듦
+
+
+왜 클라를 여기서 만들지?;;; api 통신 할거도 아니고?
+
+REST Client 는 VS Code 의 확장 프로그램으로 Postman 과 같은 외부 API 테스팅 프로그램을 사용하지 않고도, 간단한 파일을 작성하여 VS Code 내부에서 API 테스트를 할 수 있는 기능을 제공한다. 또한 Swagger 와 같은 복잡한 API 문서화 프레임워크를 사용하지 않고도, 쉽게 API를 문서화할 수 있다.
+
+여기에 .http 파일을 만들고
+
+GET http ~~~ 치면 클라가 요청을 해서 어떤 결과가 나왔는지 확인 가능
+
+작성하면 위에  send request라는 버튼이 생김
+
+포스트맨까지 안가도 할 수가 있게 됨.
+
+근데 post는 왜 안되냐... 포스트 맨이 더 편한거 같기도 하고...
+
+근데 이래야 문서화가 되니까
+
+
+get param -> key value 값을 담을 수 있음. 쿼리스트링이라고 함.
+
+
+    @GetMapping("/hello/customer")
+    public String hellocustomerParam(@RequestParam Long CustomerId) {
+        return new String();
+    }
+이거 하면 customerId라는 이름의 키로 json 뒤져서 꺼냄
+
+
+localhost:8080/hello/customer?customerId=100
+
+
+
+get api 와 pathvariable
+
+customer/{customerId}
+이름이 같으면 뽑아서 변수에 담아줌
+
+
+    @GetMapping("/hello/customer")
+    public String getMethodName(@RequestParam Long customerId) {
+        return "Hello Get Request Param " + customerId;
+    }
+
+
+localhost:8080/hello/customer/100
+위의 
+localhost:8080/hello/customer?customerid=100
+이거랑 대조적
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
